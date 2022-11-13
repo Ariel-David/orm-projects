@@ -7,8 +7,8 @@ import java.sql.Statement;
 
 public class ConnectionUtilities {
 
-//    public static <T> ResultSet createConnectionToTable(Class<T> clz, Connection connection) throws SQLException {
-//        System.out.println("Connecting database...");
-//        Statement stmt = connection.createStatement();
-//    }
+    public static <T> ResultSet createConnectionToTable(Connection connection, String query) throws SQLException {
+        Statement stmt = connection.createStatement();
+        return stmt.executeQuery(query);
+    }
 }
