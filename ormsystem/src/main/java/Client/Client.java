@@ -1,7 +1,6 @@
 package Client;
 
 import Entity.Animal;
-import Entity.User;
 import Sql.MysqlDatabase;
 import Utils.QueryBuilder;
 
@@ -21,11 +20,11 @@ public class Client {
 //        map.put("numOfLegs", 1);
 //        map.put("name", "ramini");
 //        map.put("sound", "riri!");
+//
 //        String query = new QueryBuilder.Builder().insert(Animal.class).values(map).build().toString();
+//        System.out.println(query);
 
-        System.out.println(table.findAll(User.class));
-        table.createTable(User.class);
-        System.out.println(table.findAll(User.class));
+        table.delete();
 
     }
 }

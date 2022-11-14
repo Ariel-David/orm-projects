@@ -25,3 +25,11 @@ public class ConnectionUtilities {
 
 
 }
+        return preparedStmt.execute();
+    }
+
+    public static int TableConnectionWithUpdateQuery(Connection connection, String query) throws SQLException {
+        PreparedStatement preparedStmt = connection.prepareStatement(query);
+        return preparedStmt.executeUpdate();
+    }
+}
