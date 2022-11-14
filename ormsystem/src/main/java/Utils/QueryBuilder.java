@@ -162,6 +162,10 @@ public class QueryBuilder {
 
         public <T> Builder set(String key, T value) {
             if (!this.query.contains("SET")) this.query += "SET ";
+            return this;
+        }
+
+        public <T> Builder setValue(String key, T value){
             this.query += key + "=";
             if (value instanceof Integer) {
                 this.query += value + " ";
