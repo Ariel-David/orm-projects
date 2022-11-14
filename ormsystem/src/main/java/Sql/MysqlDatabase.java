@@ -40,10 +40,10 @@ public class MysqlDatabase {
         String query = new QueryBuilder.Builder()
                 .select("*")
                 .from(clz)
-                .build().getQuery();
+                .build().toString();
 
         try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
-            ResultSet rs = ConnectionUtilities.TableConnectionWithQuery(connection, query);
+            ResultSet rs = ConnectionUtilities.TableConnectionWithSelectQuery(connection, query);
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
@@ -60,10 +60,10 @@ public class MysqlDatabase {
                 .from(clz)
                 .where(field, value)
                 .limit(1)
-                .build().getQuery();
+                .build().toString();
 
         try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
-            ResultSet rs = ConnectionUtilities.TableConnectionWithQuery(connection, query);
+            ResultSet rs = ConnectionUtilities.TableConnectionWithSelectQuery(connection, query);
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
@@ -79,10 +79,10 @@ public class MysqlDatabase {
                 .select("*")
                 .from(clz)
                 .where(field, value)
-                .build().getQuery();
+                .build().toString();
 
         try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
-            ResultSet rs = ConnectionUtilities.TableConnectionWithQuery(connection, query);
+            ResultSet rs = ConnectionUtilities.TableConnectionWithSelectQuery(connection, query);
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
@@ -90,6 +90,19 @@ public class MysqlDatabase {
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                  IllegalAccessException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void delete(){
+        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword()))
+        {
+            String query = "delete from animal where id = 1";
+            ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query);
+        }
+        catch (Exception e)
+        {
+            System.err.println("Got an exception! ");
+            System.err.println(e.getMessage());
         }
     }
 
