@@ -69,6 +69,36 @@ public class MysqlDatabase {
         }
     }
 
+    public <T, V> List<T> deleteOne(Class<T> clz, String field, V value){
+//        String query = new QueryBuilder.Builder()
+//                .select("*")
+//                .from(clz)
+//                .where(field, value)
+//                .limit(1)
+//                .build().getQuery();
+        String query = "DELETE FROM " + clz.getSimpleName().toLowerCase() + " WHERE " + field + "=" + value;
+        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
+            ResultSet rs = ConnectionUtilities.TableConnectionWithQuery(connection, query);
+            return readFromDB(rs, clz);
+
+        } catch (SQLException e) {
+            throw new IllegalStateException("Cannot connect the database!", e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+//    public <T, V> List<T> deleteAny(Class<T> clz, String field, V value){
+//
+//    }
+//    public <T, V> List<T> deleteTable(Class<T> clz, String field, V value){
+//
+//    }
     private <T> List<T> readFromDB(ResultSet rs, Class<T> clz) throws SQLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         List<T> results = new ArrayList<>();
 
