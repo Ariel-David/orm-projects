@@ -1,5 +1,8 @@
 package Utils;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Map;
 
 public class QueryBuilder {
@@ -31,7 +34,7 @@ public class QueryBuilder {
             this.query += key + "=";
             if (value instanceof Integer) {
                 this.query += value + " ";
-            } else if(value instanceof String) {
+            } else if (value instanceof String) {
                 this.query += "'" + value + "' ";
             } else {
                 throw new IllegalArgumentException("Type of object must be an integer or a string");
@@ -49,7 +52,7 @@ public class QueryBuilder {
             return this;
         }
 
-        public Builder limit(int amount){
+        public Builder limit(int amount) {
             this.query += "LIMIT " + amount;
             return this;
         }
@@ -64,12 +67,34 @@ public class QueryBuilder {
             return this;
         }
 
-        public <T> Builder insert(Class<T> clz){
+        public <T> Builder insert(Class<T> clz) {
             this.query += "INSERT INTO " + clz.getSimpleName().toLowerCase() + " ";
             return this;
         }
 
-        public <V> Builder values(Map<String,V> map){
+        public <T> Builder createTable(Class<T> clz) {
+            this.query += "CREATE TABLE IF NOT EXISTS " + clz.getSimpleName().toLowerCase() + "(";
+            Field[] declaredFields = clz.getDeclaredFields();
+            Arrays.stream(declaredFields).forEach(field -> {
+                this.query += field.getName() + " ";
+                Type type = field.getAnnotatedType().getType();
+
+                if (String.class.equals(type)) {
+                    this.query += "varchar(50), ";
+                } else if (int.class.equals(type)) {
+                    this.query += "int, ";
+                } else {
+                    System.out.println("Unsupported class");
+                }
+            });
+
+            this.query = this.query.substring(0, this.query.length() - 2);
+            this.query += ")";
+
+            return this;
+        }
+
+        public <V> Builder values(Map<String, V> map) {
             this.query += "(";
 
             for (String key : map.keySet())
@@ -78,10 +103,10 @@ public class QueryBuilder {
             this.query = this.query.substring(0, this.query.length() - 2);
             this.query += ") VALUES (";
 
-            for (V value : map.values()){
+            for (V value : map.values()) {
                 if (value instanceof Integer) {
                     this.query += value + ", ";
-                } else if(value instanceof String) {
+                } else if (value instanceof String) {
                     this.query += "'" + value + "', ";
                 } else {
                     throw new IllegalArgumentException("Type of value object must be an integer or a string");
@@ -94,7 +119,7 @@ public class QueryBuilder {
             return this;
         }
 
-        public <T> Builder update(Class<T> clz){
+        public <T> Builder update(Class<T> clz) {
             this.query += "UPDATE " + clz.getSimpleName().toLowerCase() + " ";
             return this;
         }
@@ -104,7 +129,7 @@ public class QueryBuilder {
             this.query += key + "=";
             if (value instanceof Integer) {
                 this.query += value + " ";
-            } else if(value instanceof String) {
+            } else if (value instanceof String) {
                 this.query += "'" + value + "' ";
             } else {
                 throw new IllegalArgumentException("Type of value object must be an integer or a string");

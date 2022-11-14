@@ -3,7 +3,6 @@ package Sql;
 import Utils.ConnectionUtilities;
 import Utils.QueryBuilder;
 import Utils.SqlConfig;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -76,12 +75,10 @@ public class MysqlDatabase {
                 .where(field, value)
                 .limit(1)
                 .build().toString();
+
         try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
-            if (ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0) {
-                return true;
-            } else {
-                return false;
-            }
+            return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
+
         } catch (Exception e) {
             System.err.println("Got an exception! ");
             System.err.println(e.getMessage());
@@ -94,12 +91,9 @@ public class MysqlDatabase {
                 .delete(clz)
                 .where(field, value)
                 .build().toString();
+
         try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
-            if (ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0) {
-                return true;
-            } else {
-                return false;
-            }
+            return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
         } catch (Exception e) {
             System.err.println("Got an exception! ");
             System.err.println(e.getMessage());
@@ -111,17 +105,14 @@ public class MysqlDatabase {
         String query = new QueryBuilder.Builder()
                 .truncate(clz)
                 .build().toString();
+
         try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
-            if (ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception e) {
-            System.err.println("Got an exception! ");
-            System.err.println(e.getMessage());
+            return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Couldn't delete this entity");
+//            System.err.println("Got an exception! ");
+//            System.err.println(e.getMessage());
         }
-        return null;
     }
 
     private <T> List<T> readFromDB(ResultSet rs, Class<T> clz) throws SQLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
