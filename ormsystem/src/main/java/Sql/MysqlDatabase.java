@@ -3,6 +3,7 @@ package Sql;
 import Annotation.NotNull;
 import Annotation.PrimaryKey;
 import Annotation.Unique;
+import Entity.Animal;
 import Utils.ConnectionUtilities;
 import Utils.QueryBuilder;
 
@@ -26,10 +27,12 @@ public class MysqlDatabase {
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
-            throw new IllegalStateException("Cannot connect the database!", e);
+            return null;
+//            throw new IllegalStateException("Cannot connect the database!", e);
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                  IllegalAccessException e) {
-            throw new RuntimeException(e);
+            return null;
+//            throw new RuntimeException(e);
         }
     }
 
@@ -112,7 +115,17 @@ public class MysqlDatabase {
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
         } catch (SQLException e) {
-            throw new RuntimeException("Couldn't delete this entity");
+            throw new RuntimeException("Couldn't truncate this table");
+        }
+    }
+
+    public <T> boolean createTable(Class<T> clz) {
+        String query = new QueryBuilder.Builder().createTable(clz).build().toString();
+        System.out.println(query);
+        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
+            return ConnectionUtilities.TableConnectionWithCreateTableQuery(connection, query) > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Couldn't create the table");
         }
     }
 
@@ -125,13 +138,13 @@ public class MysqlDatabase {
             Field[] declaredFields = clz.getDeclaredFields();
 
             for (Field field : declaredFields) {
-                if(field.isAnnotationPresent(PrimaryKey.class)){
+                if (field.isAnnotationPresent(PrimaryKey.class)) {
                     System.out.println(field + " is a primary key");
                 }
-                if(field.isAnnotationPresent(Unique.class)){
+                if (field.isAnnotationPresent(Unique.class)) {
                     System.out.println(field + " has to be unique");
                 }
-                if(field.isAnnotationPresent(NotNull.class)){
+                if (field.isAnnotationPresent(NotNull.class)) {
                     System.out.println(field + " must not be null");
                 }
                 field.setAccessible(true);

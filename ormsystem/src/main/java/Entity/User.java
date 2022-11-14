@@ -1,13 +1,16 @@
 package Entity;
 
+import Annotation.AutoIncrement;
 import Annotation.NotNull;
 import Annotation.PrimaryKey;
 import Annotation.Unique;
 
 public class User {
 
+    @AutoIncrement
     @PrimaryKey
     private int id;
+    @NotNull
     private String firstName;
     private String lastName;
     @Unique

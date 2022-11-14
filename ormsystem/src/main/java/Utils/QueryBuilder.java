@@ -1,5 +1,10 @@
 package Utils;
 
+import Annotation.AutoIncrement;
+import Annotation.NotNull;
+import Annotation.PrimaryKey;
+import Annotation.Unique;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -74,22 +79,47 @@ public class QueryBuilder {
             return this;
         }
 
+        private <T> Builder checkIfContainsAnnotations(Field field) {
+            if (field.isAnnotationPresent(PrimaryKey.class)) {
+                this.query += "PRIMARY KEY ";
+            }
+            if (field.isAnnotationPresent(Unique.class)) {
+                this.query += "UNIQUE ";
+            }
+            if (field.isAnnotationPresent(NotNull.class)) {
+                this.query += "NOT NULL ";
+            }
+            if (field.isAnnotationPresent(AutoIncrement.class)) {
+                this.query += "AUTO_INCREMENT ";
+            }
+            this.query = this.query.trim();
+            this.query += ", ";
+
+            return this;
+        }
+
         public <T> Builder createTable(Class<T> clz) {
             this.query += "CREATE TABLE IF NOT EXISTS " + clz.getSimpleName().toLowerCase() + "(";
             Field[] declaredFields = clz.getDeclaredFields();
+
             Arrays.stream(declaredFields).forEach(field -> {
-                this.query += field.getName() + " ";
+                this.query += "" + field.getName() + " ";
                 Type type = field.getAnnotatedType().getType();
 
                 if (String.class.equals(type)) {
-                    this.query += "varchar(50), ";
+                    this.query += "varchar(50) ";
+
                 } else if (int.class.equals(type)) {
-                    this.query += "int, ";
+                    this.query += "int ";
+
                 } else if (boolean.class.equals(type)) {
-                    this.query += "BOOLEAN, ";
+                    this.query += "BOOLEAN ";
+
                 } else {
                     System.out.println("Unsupported class");
                 }
+
+                checkIfContainsAnnotations(field);
             });
 
             this.query = this.query.substring(0, this.query.length() - 2);
