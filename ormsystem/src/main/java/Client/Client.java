@@ -1,9 +1,11 @@
 package Client;
 
 import Entity.Animal;
+import Entity.PrimaryKey;
 import Sql.MysqlDatabase;
 import Utils.QueryBuilder;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,8 +26,8 @@ public class Client {
 //        String query = new QueryBuilder.Builder().insert(Animal.class).values(map).build().toString();
 //        System.out.println(query);
 
-        table.delete();
-
+        String createTableQuery = new QueryBuilder.Builder().createTable(Animal.class).build().toString();
+        System.out.println(createTableQuery);
     }
 }
 

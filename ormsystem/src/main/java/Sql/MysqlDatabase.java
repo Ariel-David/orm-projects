@@ -3,11 +3,15 @@ package Sql;
 import Utils.ConnectionUtilities;
 import Utils.QueryBuilder;
 import Utils.SqlConfig;
+
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Native;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MysqlDatabase {
@@ -69,14 +73,11 @@ public class MysqlDatabase {
         }
     }
 
-    public void delete(){
-        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword()))
-        {
+    public void delete() {
+        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
             String query = "delete from animal where id = 1";
             ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             System.err.println("Got an exception! ");
             System.err.println(e.getMessage());
         }
@@ -99,5 +100,15 @@ public class MysqlDatabase {
         }
 
         return results;
+    }
+
+    public <T> void writeToDB(Class<T> clz) {
+        Field[] fieldList = clz.getClass().getDeclaredFields();
+        // -> getName returns the name of the property
+        // -> getAnnotatedType returns type of property
+    }
+
+    public void createTable(){
+
     }
 }
