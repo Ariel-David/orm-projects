@@ -181,15 +181,6 @@ public class MysqlDatabase {
             Field[] declaredFields = clz.getDeclaredFields();
 
             for (Field field : declaredFields) {
-                if (field.isAnnotationPresent(PrimaryKey.class)) {
-                    System.out.println(field + " is a primary key");
-                }
-                if (field.isAnnotationPresent(Unique.class)) {
-                    System.out.println(field + " has to be unique");
-                }
-                if (field.isAnnotationPresent(NotNull.class)) {
-                    System.out.println(field + " must not be null");
-                }
                 field.setAccessible(true);
                 field.set(item, rs.getObject(field.getName()));
             }

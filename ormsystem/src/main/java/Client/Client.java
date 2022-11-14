@@ -24,8 +24,6 @@ public class Client {
 //        String query = new QueryBuilder.Builder().insert(Animal.class).values(map).build().toString();
 //        System.out.println(query);
 
-        table.delete();
-
     }
 }
 
