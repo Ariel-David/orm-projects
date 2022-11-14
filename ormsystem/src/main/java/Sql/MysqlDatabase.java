@@ -1,21 +1,25 @@
 package Sql;
 
 import Utils.ConnectionUtilities;
+import Utils.QueryBuilder;
 import Utils.SqlConfig;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class MysqlDatabase {
 
-    public <T> List<T> findAll(Class<T> clz, String query) {
+    public <T> List<T> findAll(Class<T> clz) {
+        String query = new QueryBuilder.Builder()
+                .select("*")
+                .from(clz)
+                .build().getQuery();
+
         try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
-            ResultSet rs = ConnectionUtilities.createConnectionToTable(connection, query);
+            ResultSet rs = ConnectionUtilities.TableConnectionWithQuery(connection, query);
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
@@ -26,10 +30,16 @@ public class MysqlDatabase {
         }
     }
 
-    public <T> List<T> findOne(Class<T> clz, String query) {
+    public <T, V> List<T> findOne(Class<T> clz, String field, V value) {
+        String query = new QueryBuilder.Builder()
+                .select("*")
+                .from(clz)
+                .where(field, value)
+                .limit(1)
+                .build().getQuery();
 
         try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
-            ResultSet rs = ConnectionUtilities.createConnectionToTable(connection, query);
+            ResultSet rs = ConnectionUtilities.TableConnectionWithQuery(connection, query);
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
@@ -40,10 +50,15 @@ public class MysqlDatabase {
         }
     }
 
-    public <T> List<T> findAny(Class<T> clz, String query) {
+    public <T, V> List<T> findAny(Class<T> clz, String field, V value) {
+        String query = new QueryBuilder.Builder()
+                .select("*")
+                .from(clz)
+                .where(field, value)
+                .build().getQuery();
 
         try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
-            ResultSet rs = ConnectionUtilities.createConnectionToTable(connection, query);
+            ResultSet rs = ConnectionUtilities.TableConnectionWithQuery(connection, query);
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
