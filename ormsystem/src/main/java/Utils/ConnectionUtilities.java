@@ -12,4 +12,9 @@ public class ConnectionUtilities {
     public static int TableConnectionWithDeleteQuery(Connection connection, String query) throws SQLException {
         PreparedStatement preparedStmt = connection.prepareStatement(query);
         return preparedStmt.executeUpdate();
-    }}
+    }
+
+    public static Connection getConnectionInstance() throws SQLException {
+        return DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword());
+    }
+}

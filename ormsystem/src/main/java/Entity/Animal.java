@@ -1,13 +1,17 @@
 package Entity;
 
-import java.lang.annotation.Native;
+import Annotation.NotNull;
+import Annotation.PrimaryKey;
+import Annotation.Unique;
 
 public class Animal {
 
     @PrimaryKey
     private int id;
     private String name;
+    @NotNull
     private int numOfLegs;
+    @Unique
     private String sound;
 
     public Animal() {

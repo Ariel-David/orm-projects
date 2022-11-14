@@ -1,4 +1,4 @@
-package Entity;
+package Annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -7,3 +7,5 @@ import java.lang.annotation.RetentionPolicy;
 public @interface PrimaryKey {
 
 }
+
+

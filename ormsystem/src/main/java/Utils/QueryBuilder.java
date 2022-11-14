@@ -36,6 +36,8 @@ public class QueryBuilder {
                 this.query += value + " ";
             } else if (value instanceof String) {
                 this.query += "'" + value + "' ";
+            } else if (value instanceof Boolean) {
+                this.query += (Boolean) value ? 1 : 0 + " ";
             } else {
                 throw new IllegalArgumentException("Type of object must be an integer or a string");
             }
@@ -57,12 +59,12 @@ public class QueryBuilder {
             return this;
         }
 
-        public <T>Builder delete(Class<T> clz){
+        public <T> Builder delete(Class<T> clz) {
             this.query += "DELETE FROM " + clz.getSimpleName().toLowerCase() + " ";
             return this;
         }
 
-        public <T>Builder truncate(Class<T> clz){
+        public <T> Builder truncate(Class<T> clz) {
             this.query += "TRUNCATE TABLE " + clz.getSimpleName().toLowerCase() + " ";
             return this;
         }
@@ -83,6 +85,8 @@ public class QueryBuilder {
                     this.query += "varchar(50), ";
                 } else if (int.class.equals(type)) {
                     this.query += "int, ";
+                } else if (boolean.class.equals(type)) {
+                    this.query += "BOOLEAN, ";
                 } else {
                     System.out.println("Unsupported class");
                 }
@@ -108,6 +112,8 @@ public class QueryBuilder {
                     this.query += value + ", ";
                 } else if (value instanceof String) {
                     this.query += "'" + value + "', ";
+                } else if (value instanceof Boolean) {
+                    this.query += (Boolean) value ? 1 : 0 + " ";
                 } else {
                     throw new IllegalArgumentException("Type of value object must be an integer or a string");
                 }
@@ -131,6 +137,8 @@ public class QueryBuilder {
                 this.query += value + " ";
             } else if (value instanceof String) {
                 this.query += "'" + value + "' ";
+            } else if (value instanceof Boolean) {
+                this.query += (Boolean) value ? 1 : 0 + " ";
             } else {
                 throw new IllegalArgumentException("Type of value object must be an integer or a string");
             }
