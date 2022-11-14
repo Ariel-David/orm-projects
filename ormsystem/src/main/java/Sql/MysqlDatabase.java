@@ -1,8 +1,11 @@
 package Sql;
 
+import Annotation.NotNull;
+import Annotation.PrimaryKey;
+import Annotation.Unique;
 import Utils.ConnectionUtilities;
 import Utils.QueryBuilder;
-import Utils.SqlConfig;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -18,7 +21,7 @@ public class MysqlDatabase {
                 .from(clz)
                 .build().toString();
 
-        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
+        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             ResultSet rs = ConnectionUtilities.TableConnectionWithSelectQuery(connection, query);
             return readFromDB(rs, clz);
 
@@ -38,7 +41,7 @@ public class MysqlDatabase {
                 .limit(1)
                 .build().toString();
 
-        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
+        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             ResultSet rs = ConnectionUtilities.TableConnectionWithSelectQuery(connection, query);
             return readFromDB(rs, clz);
 
@@ -57,7 +60,7 @@ public class MysqlDatabase {
                 .where(field, value)
                 .build().toString();
 
-        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
+        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             ResultSet rs = ConnectionUtilities.TableConnectionWithSelectQuery(connection, query);
             return readFromDB(rs, clz);
 
@@ -76,7 +79,7 @@ public class MysqlDatabase {
                 .limit(1)
                 .build().toString();
 
-        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
+        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
 
         } catch (Exception e) {
@@ -92,7 +95,7 @@ public class MysqlDatabase {
                 .where(field, value)
                 .build().toString();
 
-        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
+        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
         } catch (Exception e) {
             System.err.println("Got an exception! ");
@@ -106,12 +109,10 @@ public class MysqlDatabase {
                 .truncate(clz)
                 .build().toString();
 
-        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
+        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
         } catch (SQLException e) {
             throw new RuntimeException("Couldn't delete this entity");
-//            System.err.println("Got an exception! ");
-//            System.err.println(e.getMessage());
         }
     }
 
@@ -124,6 +125,15 @@ public class MysqlDatabase {
             Field[] declaredFields = clz.getDeclaredFields();
 
             for (Field field : declaredFields) {
+                if(field.isAnnotationPresent(PrimaryKey.class)){
+                    System.out.println(field + " is a primary key");
+                }
+                if(field.isAnnotationPresent(Unique.class)){
+                    System.out.println(field + " has to be unique");
+                }
+                if(field.isAnnotationPresent(NotNull.class)){
+                    System.out.println(field + " must not be null");
+                }
                 field.setAccessible(true);
                 field.set(item, rs.getObject(field.getName()));
             }

@@ -12,7 +12,7 @@ public class Client {
 
         MysqlDatabase table = new MysqlDatabase();
 
-//        System.out.println(table.findAll(Animal.class));
+        System.out.println(table.findAll(Animal.class));
 //        System.out.println(table.findOne(Animal.class, "numOfLegs", 4));
 //        System.out.println(table.findAny(Animal.class, "id", 2));
 
@@ -22,10 +22,12 @@ public class Client {
 //        map.put("sound", "riri!");
 //
 //        String query = new QueryBuilder.Builder().insert(Animal.class).values(map).build().toString();
-//        System.out.println(query);
 
-        String createTableQuery = new QueryBuilder.Builder().createTable(Animal.class).build().toString();
-        System.out.println(createTableQuery);
+//        String query = new QueryBuilder.Builder().createTable(Animal.class).build().toString();
+
+//        String query = new QueryBuilder.Builder().where("isOk", true).and().where("ok", false).build().toString();
+
+//        System.out.println(query);
     }
 }
 
