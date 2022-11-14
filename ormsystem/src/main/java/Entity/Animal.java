@@ -7,7 +7,41 @@ public class Animal {
     private int numOfLegs;
     private String sound;
 
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getNumOfLegs() {
+        return numOfLegs;
+    }
+
+    public void setNumOfLegs(int numOfLegs) {
+        this.numOfLegs = numOfLegs;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+
+    public String getSound() {
+        return sound;
+    }
+
+    public void setSound(String sound) {
+        this.sound = sound;
+    }
+
     public Animal() {
+
     }
 
     @Override

@@ -12,4 +12,10 @@ public class ConnectionUtilities {
     public static Boolean TableConnectionWithDeleteQuery(Connection connection, String query) throws SQLException {
         PreparedStatement preparedStmt = connection.prepareStatement(query);
         return preparedStmt.execute();
-    }}
+    }
+
+    public static int TableConnectionWithUpdateQuery(Connection connection, String query) throws SQLException {
+        PreparedStatement preparedStmt = connection.prepareStatement(query);
+        return preparedStmt.executeUpdate();
+    }
+}
