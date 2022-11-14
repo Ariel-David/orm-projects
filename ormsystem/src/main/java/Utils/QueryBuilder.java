@@ -57,13 +57,13 @@ public class QueryBuilder {
             return this;
         }
 
-        public Builder delete(String tableName) {
-            this.query += "DELETE FROM " + tableName + " ";
+        public <T>Builder delete(Class<T> clz){
+            this.query += "DELETE FROM " + clz.getSimpleName().toLowerCase() + " ";
             return this;
         }
 
-        public Builder truncate(String tableName) {
-            this.query += "TRUNCATE TABLE " + tableName + " ";
+        public <T>Builder truncate(Class<T> clz){
+            this.query += "TRUNCATE TABLE " + clz.getSimpleName().toLowerCase() + " ";
             return this;
         }
 

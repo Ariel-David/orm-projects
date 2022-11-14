@@ -9,7 +9,7 @@ public class ConnectionUtilities {
         return statement.executeQuery(query);
     }
 
-    public static Boolean TableConnectionWithDeleteQuery(Connection connection, String query) throws SQLException {
+    public static int TableConnectionWithDeleteQuery(Connection connection, String query) throws SQLException {
         PreparedStatement preparedStmt = connection.prepareStatement(query);
-        return preparedStmt.execute();
+        return preparedStmt.executeUpdate();
     }}

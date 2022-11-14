@@ -6,6 +6,7 @@ import Utils.SqlConfig;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Native;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -73,14 +74,58 @@ public class MysqlDatabase {
         }
     }
 
-    public void delete() {
+    public <T, V> Boolean deleteOne(Class<T> clz, String field, V value) {
+        String query = new QueryBuilder.Builder()
+                .delete(clz)
+                .where(field, value)
+                .limit(1)
+                .build().toString();
         try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
-            String query = "delete from animal where id = 1";
-            ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query);
+            if (ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0) {
+                return true;
+            } else {
+                return false;
+            }
         } catch (Exception e) {
             System.err.println("Got an exception! ");
             System.err.println(e.getMessage());
         }
+        return null;
+    }
+
+    public <T, V> Boolean deleteAny(Class<T> clz, String field, V value) {
+        String query = new QueryBuilder.Builder()
+                .delete(clz)
+                .where(field, value)
+                .build().toString();
+        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
+            if (ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println("Got an exception! ");
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
+
+    public <T, V> Boolean deleteEntireTable(Class<T> clz) {
+        String query = new QueryBuilder.Builder()
+                .truncate(clz)
+                .build().toString();
+        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
+            if (ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println("Got an exception! ");
+            System.err.println(e.getMessage());
+        }
+        return null;
     }
 
     private <T> List<T> readFromDB(ResultSet rs, Class<T> clz) throws SQLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
@@ -100,15 +145,5 @@ public class MysqlDatabase {
         }
 
         return results;
-    }
-
-    public <T> void writeToDB(Class<T> clz) {
-        Field[] fieldList = clz.getClass().getDeclaredFields();
-        // -> getName returns the name of the property
-        // -> getAnnotatedType returns type of property
-    }
-
-    public void createTable(){
-
     }
 }
