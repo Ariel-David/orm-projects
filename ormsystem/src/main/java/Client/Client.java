@@ -24,7 +24,7 @@ public class Client {
 //        String query = new QueryBuilder.Builder().insert(Animal.class).values(map).build().toString();
 //        System.out.println(query);
         Animal cat = new Animal();
-        cat.setId(2);
+        cat.setId(3);
         cat.setName("foxy");
         cat.setNumOfLegs(6);
         cat.setSound("brbr");
