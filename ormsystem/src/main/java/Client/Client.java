@@ -2,24 +2,30 @@ package Client;
 
 import Entity.Animal;
 import Sql.MysqlDatabase;
+import Utils.QueryBuilder;
 
-import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Client {
-    public static void main(String[] args) throws SQLException, IllegalAccessException {
+    public static void main(String[] args) {
 
         MysqlDatabase table = new MysqlDatabase();
 
-       // System.out.println(table.findAll(Animal.class));
+//        System.out.println(table.findAll(Animal.class));
+//        System.out.println(table.findOne(Animal.class, "numOfLegs", 4));
+//        System.out.println(table.findAny(Animal.class, "id", 2));
 
-        //System.out.println(table.findOne(Animal.class, "numOfLegs", 4));
-        //System.out.println(table.findAny(Animal.class, "id", 2));
-       // System.out.println(table.update(Animal.class,"id",1,"name","Efi"));
-        Animal a = new Animal();
-        a.setName("Rani");
-        a.setSound("mooooo");
-        a.setId(1);
-       table.updateEntireEntity(a);
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("numOfLegs", 1);
+//        map.put("name", "ramini");
+//        map.put("sound", "riri!");
+//
+//        String query = new QueryBuilder.Builder().insert(Animal.class).values(map).build().toString();
+//        System.out.println(query);
+
+        table.delete();
+
     }
 }
 
