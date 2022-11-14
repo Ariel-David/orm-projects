@@ -7,6 +7,7 @@ import Entity.Animal;
 import Utils.ConnectionUtilities;
 import Utils.QueryBuilder;
 import Utils.SqlConfig;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -16,38 +17,48 @@ import java.util.List;
 
 public class MysqlDatabase {
 
-    public <T> List<?> updateEntireEntity(T object) throws SQLException, IllegalAccessException {
+    public <T> List<?> updateEntireEntity(T object) {
+
         Class<?> clz = object.getClass();
         Field[] declaredFields = clz.getDeclaredFields();
         Object index = null;
         T item;
-
-        for (Field field : declaredFields) {
-            field.setAccessible(true);
-            if (field.getName() == "id") {
-                index = field.get(object);
-                List<?> list = findOne(clz, "id", index);
-                item = (T) list.get(0);
-                break;
+        try {
+            for (Field field : declaredFields) {
+                field.setAccessible(true);
+                if (field.getName() == "id") {
+                    index = field.get(object);
+                    List<?> list = findOne(clz, "id", index); //TODO:handle empty list exception
+                    item = (T) list.get(0);
+                    break;
+                }
             }
+        } catch (Exception e) {
+            System.out.println("fa");
         }
 
-        Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword());
-        String query = new QueryBuilder.Builder().update(clz).build().toString();
-        for (Field field : declaredFields) {
-            field.setAccessible(true);
-            query += new QueryBuilder.Builder().set(field.getName(), field.get(object)).build().toString();
+        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
+            String query = new QueryBuilder.Builder().update(clz).set().build().toString();
+            for (Field field : declaredFields) {
+                field.setAccessible(true);
+                query += new QueryBuilder.Builder().setValue(field.getName(), field.get(object)).build().toString();
+            }
+            query = query.substring(0, query.length() - 2) + " ";
+            query += new QueryBuilder.Builder().where("id", index).build().toString();
+            System.out.println(query);
+            int indexChanged = ConnectionUtilities.TableConnectionWithUpdateQuery(connection, query);
+            return findOne(clz, "id", index);
+        } catch (Exception e) {
+            System.out.println("catchhh");
         }
-        query += new QueryBuilder.Builder().where("id", index).build().toString();
-        System.out.println(query);
-        int indexChanged = ConnectionUtilities.TableConnectionWithUpdateQuery(connection, query);
-        return findOne(clz, "id", index);
+        return null;
     }
 
     public <T, V, K> List<T> update(Class<T> clz, String whereKey, K whereValue, String filed, V value) {
         String query = new QueryBuilder.Builder()
                 .update(clz)
-                .set(filed, value)
+                .set()
+                .setValue(filed, value)
                 .where(whereKey, whereValue)
                 .build().toString();
         try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {

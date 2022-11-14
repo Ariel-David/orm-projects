@@ -160,7 +160,7 @@ public class QueryBuilder {
             return this;
         }
 
-        public <T> Builder set(String key, T value) {
+        public Builder set() {
             if (!this.query.contains("SET")) this.query += "SET ";
             return this;
         }
@@ -168,11 +168,11 @@ public class QueryBuilder {
         public <T> Builder setValue(String key, T value){
             this.query += key + "=";
             if (value instanceof Integer) {
-                this.query += value + " ";
+                this.query += value + ", ";
             } else if (value instanceof String) {
-                this.query += "'" + value + "' ";
+                this.query += "'" + value + "', ";
             } else if (value instanceof Boolean) {
-                this.query += (Boolean) value ? 1 : 0 + " ";
+                this.query += (Boolean) value ? 1 : 0 + ", ";
             } else {
                 throw new IllegalArgumentException("Type of value object must be an integer or a string");
             }
