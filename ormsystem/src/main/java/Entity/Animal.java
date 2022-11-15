@@ -4,6 +4,8 @@ import Annotation.AutoIncrement;
 import Annotation.NotNull;
 import Annotation.PrimaryKey;
 import Annotation.Unique;
+import Utils.ExceptionMessage;
+import Utils.RandomData;
 
 public class Animal {
 
@@ -16,6 +18,19 @@ public class Animal {
     @Unique
     private String sound;
 
+    private Animal() {
+
+    }
+
+    public static Animal createRandomAnimalInfo(){
+        Animal animal = new Animal();
+        animal.setNumOfLegs(RandomData.generateRandomNumber(0,4));
+        animal.setId(RandomData.getRandomId());
+        animal.setSound(RandomData.getRandomSound());
+        animal.setName(RandomData.getRandomFirstName());
+        return animal;
+    }
+
     public int getId() {
         return id;
     }
@@ -25,6 +40,7 @@ public class Animal {
     }
 
     public void setName(String name) {
+        if(name.length() < 2) throw new IllegalArgumentException("name: " + ExceptionMessage.TOO_SHORT_STRING.getMessage());
         this.name = name;
     }
 
@@ -33,10 +49,12 @@ public class Animal {
     }
 
     public void setNumOfLegs(int numOfLegs) {
+        if (id < 0) throw new IllegalArgumentException("numOfLegs: " + ExceptionMessage.NEGATIVE_FIELD.getMessage());
         this.numOfLegs = numOfLegs;
     }
 
     public void setId(int id) {
+        if (id < 1) throw new IllegalArgumentException("id: " + ExceptionMessage.NEGATIVE_FIELD.getMessage());
         this.id = id;
     }
 
@@ -46,12 +64,11 @@ public class Animal {
     }
 
     public void setSound(String sound) {
+        if(sound.length() < 2) throw new IllegalArgumentException("sound: " + ExceptionMessage.TOO_SHORT_STRING.getMessage());
         this.sound = sound;
     }
 
-    public Animal() {
 
-    }
 
     @Override
     public String toString() {

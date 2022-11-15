@@ -1,4 +1,4 @@
-package Sql.Utils;
+package Utils;
 
 import Annotation.AutoIncrement;
 import Annotation.NotNull;

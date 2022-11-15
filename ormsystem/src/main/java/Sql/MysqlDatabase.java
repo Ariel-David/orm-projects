@@ -1,9 +1,9 @@
 package Sql;
 
-import Sql.Utils.ConnectionUtilities;
-import Sql.Utils.ExceptionMessage;
-import Sql.Utils.QueryBuilder;
-import Sql.Utils.SqlConfig;
+import Utils.ConnectionUtilities;
+import Utils.ExceptionMessage;
+import Utils.QueryBuilder;
+import Utils.SqlConfig;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
