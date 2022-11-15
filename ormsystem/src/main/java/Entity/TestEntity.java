@@ -7,7 +7,7 @@ import Utils.RandomData;
 
 public class TestEntity {
 
-    @Unique
+    @PrimaryKey
     private int id;
     @NotNull
     private String firstName;

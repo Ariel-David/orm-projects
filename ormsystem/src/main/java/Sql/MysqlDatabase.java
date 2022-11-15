@@ -213,7 +213,7 @@ public class MysqlDatabase {
                 .delete(clz)
                 .where(field, value)
                 .limit(1)
-                .build().toString();
+                .build().toString() + ";";
 
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithBooleanResponse(connection, query);

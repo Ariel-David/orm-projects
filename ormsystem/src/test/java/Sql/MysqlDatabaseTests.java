@@ -86,7 +86,9 @@ public class MysqlDatabaseTests {
     void delete_removeOneUserFromDB_ExpectTrue() {
         TestEntity test = TestEntity.createRandomTest();
         table.createOne(test);
-        assertEquals(true, table.deleteOne(TestEntity.class, "id", test.getId()));
+        int id = test.getId();
+        boolean check = table.deleteOne(TestEntity.class, "id", test.getId());
+        assertEquals(true, check);
     }
 
     @Test
