@@ -49,7 +49,7 @@ public class Animal {
     }
 
     public void setNumOfLegs(int numOfLegs) {
-        if (id < 0) throw new IllegalArgumentException("numOfLegs: " + ExceptionMessage.NEGATIVE_FIELD.getMessage());
+        if (numOfLegs < 0) throw new IllegalArgumentException("numOfLegs: " + ExceptionMessage.NEGATIVE_FIELD.getMessage());
         this.numOfLegs = numOfLegs;
     }
 
