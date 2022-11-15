@@ -16,13 +16,18 @@ public class Client {
 //        System.out.println(table.findOne(Animal.class, "numOfLegs", 4));
 //        System.out.println(table.findAny(Animal.class, "id", 2));
 
-        Animal gato = new Animal();
-        gato.setId(1);
-        gato.setName("kitty");
-        table.createOne(gato);
+        System.out.println(table.updateProperty(Animal.class, "numOfLegs", 5, "numOfLegs", 4));
+//        System.out.println(table.findOne(Animal.class, "id", 2));
 
-        String query = new QueryBuilder.Builder().insert(gato).build().toString();
-        System.out.println(query);
+//        table.createTable(Animal.class);
+
+        //        Animal gato = new Animal();
+//        gato.setId(1);
+//        gato.setName("kitty");
+//        table.createOne(gato);
+//
+//        String query = new QueryBuilder.Builder().insert(gato).build().toString();
+//        System.out.println(query);
     }
 }
 
