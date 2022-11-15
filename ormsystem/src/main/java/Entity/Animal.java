@@ -18,13 +18,13 @@ public class Animal {
     @Unique
     private String sound;
 
-    private Animal() {
+    public Animal() {
 
     }
 
     public static Animal createRandomAnimalInfo(){
         Animal animal = new Animal();
-        animal.setNumOfLegs(RandomData.generateRandomNumber(0,4));
+        animal.setNumOfLegs(RandomData.generateRandomNumber(0,5));
         animal.setId(RandomData.getRandomId());
         animal.setSound(RandomData.getRandomSound());
         animal.setName(RandomData.getRandomFirstName());
