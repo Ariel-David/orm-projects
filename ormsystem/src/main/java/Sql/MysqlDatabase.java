@@ -21,6 +21,7 @@ public class MysqlDatabase {
     public <T> boolean createOne(T object) {
         logger.info("createOne" + " - " + "Create one");
         String query = new QueryBuilder.Builder().insert(object).insertValues(object).build().toString();
+        System.out.println(query);
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithBooleanResponse(connection, query);
         } catch (SQLIntegrityConstraintViolationException e) {
@@ -207,7 +208,7 @@ public class MysqlDatabase {
         }
     }
 
-    public <T, V> Boolean deleteOne(Class<T> clz, String field, V value) {
+    public <T, V> int deleteOne(Class<T> clz, String field, V value) {
         logger.info("deleteOne" + " - " + "Delete one item with field: " + " '" + field + "' " + " and value: " + "'" + value.toString() + "'");
         String query = new QueryBuilder.Builder()
                 .delete(clz)
@@ -216,7 +217,7 @@ public class MysqlDatabase {
                 .build().toString() + ";";
 
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
-            return ConnectionUtilities.TableConnectionWithBooleanResponse(connection, query);
+            return ConnectionUtilities.TableConnectionWithIntegerResponse(connection, query);
 
         } catch (SQLException e) {
             logger.fatal("deleteOne" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
@@ -224,7 +225,7 @@ public class MysqlDatabase {
         }
     }
 
-    public <T, V> Boolean deleteAny(Class<T> clz, String field, V value) {
+    public <T, V> int deleteAny(Class<T> clz, String field, V value) {
         logger.info("deleteAny" + " - " + "delete any item with field: " + " '" + field + "' " + " and value: " + "'" + value.toString() + "'");
         String query = new QueryBuilder.Builder()
                 .delete(clz)
@@ -232,7 +233,7 @@ public class MysqlDatabase {
                 .build().toString();
 
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
-            return ConnectionUtilities.TableConnectionWithBooleanResponse(connection, query);
+            return ConnectionUtilities.TableConnectionWithIntegerResponse(connection, query);
         } catch (SQLException e) {
             logger.fatal("deleteAny" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
             throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);

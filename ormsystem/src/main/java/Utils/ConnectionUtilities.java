@@ -11,7 +11,8 @@ public class ConnectionUtilities {
 
     public static boolean TableConnectionWithBooleanResponse(Connection connection, String query) throws SQLException {
         Statement statement = connection.createStatement();
-        return statement.execute(query);
+        boolean response = statement.execute(query);
+        return response;
     }
 
     public static int TableConnectionWithIntegerResponse(Connection connection, String query) throws SQLException {

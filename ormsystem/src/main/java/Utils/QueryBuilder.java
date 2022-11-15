@@ -207,7 +207,7 @@ public class QueryBuilder {
             if (value instanceof Integer || value instanceof Double || value instanceof Float || value instanceof Short || value instanceof Long || value instanceof Byte)
                 return value + " ";
             if (value instanceof String || value instanceof Character)
-                return "'" + value + "' ";
+                return "'" + value.toString().replaceAll("'", "") + "' ";
             if (value instanceof Boolean)
                 return (Boolean) value ? "1 " : "0 ";
             logger.error(value.getClass().getName() + "Is not  a primitive object: " + value.toString());
