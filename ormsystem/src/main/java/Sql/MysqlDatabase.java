@@ -176,7 +176,7 @@ public class MysqlDatabase {
     public <T> Boolean dropTable(Class<T> clz){
         String query = new QueryBuilder.Builder().drop(clz).build().toString();
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
-            return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
+            return ConnectionUtilities.TableConnectionWithIntegerResponse(connection, query) > 0;
         } catch (SQLException e) {
             logger.fatal("drop table" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
             throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
