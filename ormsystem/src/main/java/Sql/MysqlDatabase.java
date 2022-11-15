@@ -1,9 +1,9 @@
 package Sql;
 
-import Utils.ConnectionUtilities;
-import Utils.ExceptionMessage;
-import Utils.QueryBuilder;
-import Utils.SqlConfig;
+import Sql.Utils.ConnectionUtilities;
+import Sql.Utils.ExceptionMessage;
+import Sql.Utils.QueryBuilder;
+import Sql.Utils.SqlConfig;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -23,20 +23,20 @@ public class MysqlDatabase {
         }
     }
 
-    public <T> void createMany(List<T> objects) {
+    public <T> boolean createMany(List<T> objects) {
         // check if the list is empty!
         String query = new QueryBuilder.Builder().insert(objects.get(0)).build().toString();
         for (T object : objects)
             query += new QueryBuilder.Builder().insertValues(object).build().toString() + ", ";
         query = query.substring(0, query.length() - 2);
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
-            boolean hasBeenSuccessfullyInserted = ConnectionUtilities.TableConnectionWithInsertQuery(connection, query);
+            return ConnectionUtilities.TableConnectionWithInsertQuery(connection, query);
         } catch (SQLException e) {
             throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
         }
     }
 
-    public <T> List<?> updateEntireEntity(T object) throws SQLException {
+    public <T> List<?> updateEntireEntity(T object) {
         Class<?> clz = object.getClass();
         Field[] declaredFields = clz.getDeclaredFields();
         Object index = null;
@@ -44,7 +44,7 @@ public class MysqlDatabase {
         try {
             for (Field field : declaredFields) {
                 field.setAccessible(true);
-                if (field.getName() == "id") {
+                if (field.getName().equals("id")) {
                     index = field.get(object);
                     List<?> list = findOne(clz, "id", index); //TODO:handle empty list exception
                     item = (T) list.get(0);
