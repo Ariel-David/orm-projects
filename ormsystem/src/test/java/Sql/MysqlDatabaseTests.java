@@ -1,6 +1,5 @@
 package Sql;
 
-import Entity.Animal;
 import Entity.TestEntity;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
