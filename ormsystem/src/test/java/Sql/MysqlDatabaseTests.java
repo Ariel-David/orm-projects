@@ -86,21 +86,25 @@ public class MysqlDatabaseTests {
     void delete_removeOneUserFromDB_ExpectTrue() {
         TestEntity test = TestEntity.createRandomTest();
         table.createOne(test);
-        int id = test.getId();
-        boolean check = table.deleteOne(TestEntity.class, "id", test.getId());
-        assertEquals(true, check);
+        assertEquals(1, table.deleteOne(TestEntity.class, "id", test.getId()));
     }
 
     @Test
     void delete_removeMultipleObjectsFromDB_ExpectTrue() {
-        TestEntity test = TestEntity.createRandomTest();
-        table.createOne(test);
-        assertEquals(true, table.deleteAny(TestEntity.class, "id", test.getId()));
+        TestEntity test1 = TestEntity.createRandomTest();
+        TestEntity test2 = TestEntity.createRandomTest();
+        test1.setFirstName("yossi");
+        test2.setFirstName("yossi");
+        List<TestEntity> testList = new ArrayList<>();
+        testList.add(test1);
+        testList.add(test2);
+        table.createMany(testList);
+        assertEquals(2, table.deleteAny(TestEntity.class, "firstName", test1.getFirstName()));
     }
 
     @Test
     void delete_removeMultipleObjectsFromDBWhenTableIsEmpty_ExpectFalse() {
-        assertEquals(false, table.deleteOne(TestEntity.class, "id", 1));
+        assertEquals(0, table.deleteOne(TestEntity.class, "id", 1));
     }
 
     @Test
