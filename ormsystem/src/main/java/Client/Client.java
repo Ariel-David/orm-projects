@@ -15,7 +15,6 @@ public class Client {
 
         MysqlDatabase table = new MysqlDatabase();
 
-        System.out.println(ExceptionMessage.MULTIPLE_PRIMARY_KEY.getMessage());
 //        table.createTable(Animal.class);
 //        table.createMany(createListOfEntity());
 

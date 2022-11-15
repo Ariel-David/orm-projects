@@ -71,22 +71,19 @@ public class QueryBuilder {
             Field[] declaredFields = object.getClass().getDeclaredFields();
             Arrays.stream(declaredFields).forEach(field -> {
                 field.setAccessible(true);
-                try {
+                try{
                     if(field.isAnnotationPresent(NotNull.class) && field.get(object) == null){
-                        throw new IllegalArgumentException("Not null fields must be filled out before creation");
+                        throw new IllegalArgumentException(ExceptionMessage.EMPTY_NOTNULL_FIELD.getMessage());
                     }
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-                if (!field.isAnnotationPresent(AutoIncrement.class)) {
-                    try {
+                    if (!field.isAnnotationPresent(AutoIncrement.class)) {
                         Object value = field.get(object);
                         this.query += decideInstance(value);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
                     }
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
                 }
             });
+
             this.query = this.query.substring(0, this.query.length() - 2);
             this.query += ") ";
 
