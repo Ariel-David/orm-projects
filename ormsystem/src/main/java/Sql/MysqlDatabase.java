@@ -1,9 +1,5 @@
 package Sql;
 
-import Annotation.NotNull;
-import Annotation.PrimaryKey;
-import Annotation.Unique;
-import Entity.Animal;
 import Utils.ConnectionUtilities;
 import Utils.QueryBuilder;
 import Utils.SqlConfig;
@@ -17,8 +13,28 @@ import java.util.List;
 
 public class MysqlDatabase {
 
-    public <T> List<?> updateEntireEntity(T object) {
+    public <T> void createOne(T object) {
+        String query = new QueryBuilder.Builder().insert(object).build().toString();
+        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
+            boolean hasBeenSuccessfullyInserted = ConnectionUtilities.TableConnectionWithInsertQuery(connection, query);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Cannot connect the database!", e);
+        }
+    }
 
+    public <T> void createMany(List<T> objects) {
+        String query = "";
+        for (T object : objects)
+            query += new QueryBuilder.Builder().insert(object).build().toString() + "; ";
+
+        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
+            boolean hasBeenSuccessfullyInserted = ConnectionUtilities.TableConnectionWithInsertQuery(connection, query);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Cannot connect the database!", e);
+        }
+    }
+
+    public <T> List<?> updateEntireEntity(T object) throws SQLException, IllegalAccessException {
         Class<?> clz = object.getClass();
         Field[] declaredFields = clz.getDeclaredFields();
         Object index = null;

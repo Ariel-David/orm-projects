@@ -37,15 +37,11 @@ public class QueryBuilder {
         public <T> Builder where(String key, T value) {
             if (!this.query.contains("WHERE")) this.query += "WHERE ";
             this.query += key + "=";
-            if (value instanceof Integer) {
-                this.query += value + " ";
-            } else if (value instanceof String) {
-                this.query += "'" + value + "' ";
-            } else if (value instanceof Boolean) {
-                this.query += (Boolean) value ? 1 : 0 + " ";
-            } else {
-                throw new IllegalArgumentException("Type of object must be an integer or a string");
-            }
+            if (value instanceof Integer) this.query += value + " ";
+            else if (value instanceof String) this.query += "'" + value + "' ";
+            else if (value instanceof Boolean) this.query += (Boolean) value ? 1 : 0 + " ";
+            else throw new IllegalArgumentException("Type of object must be an integer or a string");
+
             return this;
         }
 
@@ -74,24 +70,47 @@ public class QueryBuilder {
             return this;
         }
 
-        public <T> Builder insert(Class<T> clz) {
-            this.query += "INSERT INTO " + clz.getSimpleName().toLowerCase() + " ";
+        public <T> Builder insert(T object) {
+            this.query += "INSERT INTO " + object.getClass().getSimpleName().toLowerCase() + " ";
+
+            this.query += "(";
+
+            Field[] declaredFields = object.getClass().getDeclaredFields();
+
+            Arrays.stream(declaredFields).forEach(field -> {
+                this.query += field.getName() + ", ";
+            });
+            this.query = this.query.substring(0, this.query.length() - 2);
+
+            this.query += ") VALUES (";
+
+            Arrays.stream(declaredFields).forEach(field -> {
+                field.setAccessible(true);
+                try {
+                    Object value = field.get(object);
+
+                    if (value == null) this.query += "NULL, ";
+                    else if (value instanceof Integer) this.query += value + ", ";
+                    else if (value instanceof String) this.query += "'" + value + "', ";
+                    else if (value instanceof Boolean) this.query += (Boolean) value ? 1 : 0 + " ";
+                    else throw new IllegalArgumentException("Type of value object must be an integer or a string");
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            this.query = this.query.substring(0, this.query.length() - 2);
+            this.query += ") ";
+
             return this;
         }
 
         private <T> Builder checkIfContainsAnnotations(Field field) {
-            if (field.isAnnotationPresent(PrimaryKey.class)) {
-                this.query += "PRIMARY KEY ";
-            }
-            if (field.isAnnotationPresent(Unique.class)) {
-                this.query += "UNIQUE ";
-            }
-            if (field.isAnnotationPresent(NotNull.class)) {
-                this.query += "NOT NULL ";
-            }
-            if (field.isAnnotationPresent(AutoIncrement.class)) {
-                this.query += "AUTO_INCREMENT ";
-            }
+            if (field.isAnnotationPresent(PrimaryKey.class)) this.query += "PRIMARY KEY ";
+            if (field.isAnnotationPresent(Unique.class)) this.query += "UNIQUE ";
+            if (field.isAnnotationPresent(NotNull.class)) this.query += "NOT NULL ";
+            if (field.isAnnotationPresent(AutoIncrement.class)) this.query += "AUTO_INCREMENT ";
+
             this.query = this.query.trim();
             this.query += ", ";
 
@@ -106,18 +125,10 @@ public class QueryBuilder {
                 this.query += "" + field.getName() + " ";
                 Type type = field.getAnnotatedType().getType();
 
-                if (String.class.equals(type)) {
-                    this.query += "varchar(50) ";
-
-                } else if (int.class.equals(type)) {
-                    this.query += "int ";
-
-                } else if (boolean.class.equals(type)) {
-                    this.query += "BOOLEAN ";
-
-                } else {
-                    System.out.println("Unsupported class");
-                }
+                if (String.class.equals(type)) this.query += "varchar(50) ";
+                else if (int.class.equals(type)) this.query += "int ";
+                else if (boolean.class.equals(type)) this.query += "BOOLEAN ";
+                else System.out.println("Unsupported class");
 
                 checkIfContainsAnnotations(field);
             });
@@ -131,22 +142,16 @@ public class QueryBuilder {
         public <V> Builder values(Map<String, V> map) {
             this.query += "(";
 
-            for (String key : map.keySet())
-                this.query += key + ", ";
+            for (String key : map.keySet()) this.query += key + ", ";
 
             this.query = this.query.substring(0, this.query.length() - 2);
             this.query += ") VALUES (";
 
             for (V value : map.values()) {
-                if (value instanceof Integer) {
-                    this.query += value + ", ";
-                } else if (value instanceof String) {
-                    this.query += "'" + value + "', ";
-                } else if (value instanceof Boolean) {
-                    this.query += (Boolean) value ? 1 : 0 + " ";
-                } else {
-                    throw new IllegalArgumentException("Type of value object must be an integer or a string");
-                }
+                if (value instanceof Integer) this.query += value + ", ";
+                else if (value instanceof String) this.query += "'" + value + "', ";
+                else if (value instanceof Boolean) this.query += (Boolean) value ? 1 : 0 + " ";
+                else throw new IllegalArgumentException("Type of value object must be an integer or a string");
             }
 
             this.query = this.query.substring(0, this.query.length() - 2);
@@ -165,17 +170,14 @@ public class QueryBuilder {
             return this;
         }
 
-        public <T> Builder setValue(String key, T value){
+        public <T> Builder setValue(String key, T value) {
             this.query += key + "=";
-            if (value instanceof Integer) {
-                this.query += value + ", ";
-            } else if (value instanceof String) {
-                this.query += "'" + value + "', ";
-            } else if (value instanceof Boolean) {
-                this.query += (Boolean) value ? 1 : 0 + ", ";
-            } else {
-                throw new IllegalArgumentException("Type of value object must be an integer or a string");
-            }
+
+            if (value instanceof Integer) this.query += value + " ";
+            else if (value instanceof String) this.query += "'" + value + "' ";
+            else if (value instanceof Boolean) this.query += (Boolean) value ? 1 : 0 + " ";
+            else throw new IllegalArgumentException("Type of value object must be an integer or a string");
+
             return this;
         }
 
