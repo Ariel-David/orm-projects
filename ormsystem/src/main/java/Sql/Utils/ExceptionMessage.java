@@ -1,0 +1,21 @@
+package Sql.Utils;
+
+public enum ExceptionMessage {
+
+    MULTIPLE_PRIMARY_KEY("A table can not contain multiple primary keys."),
+    MULTIPLE_AUTO_INCREMENT("A table can not contain multiple auto increment fields."),
+    TRUNCATE("Couldn't truncate the table properly."),
+    SQL_CONNECTION("Could'nt connect to the database."),
+    EMPTY_NOTNULL_FIELD("Not null fields must be filled out before creation"),
+    FIELDS_OF_OBJECT("Something went wrong when tried to get object's fields..."),
+    CREATE_TABLE("Couldn't create the table properly.");
+
+    private final String message;
+
+    private ExceptionMessage(final String message){
+        this.message = message;
+    }
+    public String getMessage(){
+        return message;
+    }
+}

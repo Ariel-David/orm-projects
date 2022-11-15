@@ -1,4 +1,4 @@
-package Utils;
+package Sql.Utils;
 
 import java.sql.*;
 
