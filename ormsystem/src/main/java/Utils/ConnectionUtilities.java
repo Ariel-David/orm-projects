@@ -12,8 +12,6 @@ public class ConnectionUtilities {
     public static int TableConnectionWithDeleteQuery(Connection connection, String query) throws SQLException {
         Statement statement = connection.createStatement();
         return statement.executeUpdate(query);
-//        PreparedStatement preparedStmt = connection.prepareStatement(query);
-//        return preparedStmt.executeUpdate();
     }
 
     public static int TableConnectionWithCreateTableQuery(Connection connection, String query) throws SQLException {
@@ -24,13 +22,26 @@ public class ConnectionUtilities {
     public static int TableConnectionWithUpdateQuery(Connection connection, String query) throws SQLException {
         Statement statement = connection.createStatement();
         return statement.executeUpdate(query);
-//        PreparedStatement preparedStmt = connection.prepareStatement(query);
-//        return preparedStmt.executeUpdate();
     }
 
     public static boolean TableConnectionWithInsertQuery(Connection connection, String query) throws SQLException {
         Statement statement = connection.createStatement();
         return statement.execute(query);
+    }
+
+    public static boolean TableConnectionWithBooleanResponse(Connection connection, String query) throws SQLException {
+        Statement statement = connection.createStatement();
+        return statement.execute(query);
+    }
+
+    public static int TableConnectionWithIntegerResponse(Connection connection, String query) throws SQLException {
+        Statement statement = connection.createStatement();
+        return statement.executeUpdate(query);
+    }
+
+    public static <T> ResultSet TableConnectionWithResultSetResponse(Connection connection, String query) throws SQLException {
+        Statement statement = connection.createStatement();
+        return statement.executeQuery(query);
     }
 
     public static Connection getConnectionInstance() throws SQLException {
