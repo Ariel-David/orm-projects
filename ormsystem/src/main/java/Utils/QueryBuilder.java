@@ -21,7 +21,7 @@ public class QueryBuilder {
     private String query;
 
     public String toString() {
-        logger.info("The request query is: "+ query.toString());
+        logger.info("The request query is: " + query.toString());
         return query;
     }
 
@@ -85,7 +85,7 @@ public class QueryBuilder {
                     }
                     if (!field.isAnnotationPresent(AutoIncrement.class)) {
                         Object value = field.get(object);
-                        this.query += decideInstance(value);
+                        this.query += decideInstance(value) + ", ";
                     }
                 } catch (IllegalAccessException e) {
                     logger.fatal("insertValues" + ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
@@ -201,13 +201,13 @@ public class QueryBuilder {
             if (value == null)
                 return "NULL ";
             if (value instanceof Integer || value instanceof Double || value instanceof Float || value instanceof Short || value instanceof Long || value instanceof Byte)
-                return value + ", ";
+                return value + " ";
             if (value instanceof String || value instanceof Character)
-                return "'" + value + "', ";
+                return "'" + value + "' ";
             if (value instanceof Boolean)
-                return (Boolean) value ? "1, " : "0, ";
-            logger.error(value.getClass().getName()+"Is not  a primitive object: "+value.toString() );
-            return value.toString() + ", ";
+                return (Boolean) value ? "1 " : "0 ";
+            logger.error(value.getClass().getName() + "Is not  a primitive object: " + value.toString());
+            return value.toString() + " ";
         }
     }
 
