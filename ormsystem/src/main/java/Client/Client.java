@@ -16,19 +16,13 @@ public class Client {
 //        System.out.println(table.findOne(Animal.class, "numOfLegs", 4));
 //        System.out.println(table.findAny(Animal.class, "id", 2));
 
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("numOfLegs", 1);
-//        map.put("name", "ramini");
-//        map.put("sound", "riri!");
-//
-//        String query = new QueryBuilder.Builder().insert(Animal.class).values(map).build().toString();
-//        System.out.println(query);
-        Animal cat = new Animal();
-        cat.setId(3);
-        cat.setName("foxy");
-        cat.setNumOfLegs(6);
-        cat.setSound("brbr");
-        table.updateEntireEntity(cat);
+        Animal gato = new Animal();
+        gato.setId(1);
+        gato.setName("kitty");
+        table.createOne(gato);
+
+        String query = new QueryBuilder.Builder().insert(gato).build().toString();
+        System.out.println(query);
     }
 }
 
