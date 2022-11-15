@@ -6,6 +6,7 @@ public enum ExceptionMessage {
     MULTIPLE_AUTO_INCREMENT("A table can not contain multiple auto increment fields."),
     TRUNCATE("Couldn't truncate the table properly."),
     ILLEGAL_SQL_QUERY("Sql query is not legal."),
+    DUPLICATED_UNIQUE_FIELD("Can not create a duplicate of a unique field"),
     EMPTY_NOTNULL_FIELD("Not null fields must be filled out before creation"),
     FIELDS_OF_OBJECT("Something went wrong when tried to get object's fields..."),
 

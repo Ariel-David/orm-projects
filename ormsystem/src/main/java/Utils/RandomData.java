@@ -15,7 +15,7 @@ public class RandomData {
         return lastName;
     }
 
-    final static String[] sound = new String[]{"kukuriku", "kra kra", "kaaaaa", "twis!", "meow", "waf waf waf", "waaaaaa"};
+    final static String[] sound = new String[]{"kukuriku", "kra kra", "kaaaaa", "twis!", "meow", "waf waf waf", "waaaaaa", "tsts"};
     final static String[] teamName = new String[]{
             "ants",
             "bats",

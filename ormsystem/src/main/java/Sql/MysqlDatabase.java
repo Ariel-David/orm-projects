@@ -23,6 +23,9 @@ public class MysqlDatabase {
         String query = new QueryBuilder.Builder().insert(object).insertValues(object).build().toString();
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithBooleanResponse(connection, query);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            logger.fatal("createMany" + ExceptionMessage.DUPLICATED_UNIQUE_FIELD.getMessage());
+            throw new IllegalStateException(ExceptionMessage.DUPLICATED_UNIQUE_FIELD.getMessage(), e);
         } catch (SQLException e) {
             logger.fatal("createOne" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
             throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
@@ -45,6 +48,10 @@ public class MysqlDatabase {
                 return false;
             }
             return true;
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            logger.fatal("createMany" + ExceptionMessage.DUPLICATED_UNIQUE_FIELD.getMessage());
+            throw new IllegalStateException(ExceptionMessage.DUPLICATED_UNIQUE_FIELD.getMessage(), e);
         } catch (SQLException e) {
             logger.fatal("createMany" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
             throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
@@ -190,7 +197,7 @@ public class MysqlDatabase {
         }
     }
 
-    public <T> Boolean dropTable(Class<T> clz){
+    public <T> Boolean dropTable(Class<T> clz) {
         String query = new QueryBuilder.Builder().drop(clz).build().toString();
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithIntegerResponse(connection, query) > 0;
