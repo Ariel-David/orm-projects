@@ -1,6 +1,7 @@
 package Sql;
 
 import Utils.ConnectionUtilities;
+import Utils.ExceptionMessage;
 import Utils.QueryBuilder;
 import Utils.SqlConfig;
 import org.apache.logging.log4j.LogManager;
@@ -19,29 +20,32 @@ public class MysqlDatabase {
 
     public <T> void createOne(T object) {
         logger.info("createOne"+" - "+"Create one");
-        String query = new QueryBuilder.Builder().insert(object).build().toString();
+        String query = new QueryBuilder.Builder().insert(object).insertValues(object).build().toString();
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             boolean hasBeenSuccessfullyInserted = ConnectionUtilities.TableConnectionWithInsertQuery(connection, query);
         } catch (SQLException e) {
             logger.fatal("createOne"+"Cannot connect the database");
             throw new IllegalStateException("Cannot connect the database!", e);
+            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
         }
     }
 
     public <T> void createMany(List<T> objects) {
         logger.info("createMany"+" - "+"Create many");
         String query = "";
+        // check if the list is empty!
+        String query = new QueryBuilder.Builder().insert(objects.get(0)).build().toString();
         for (T object : objects)
-            query += new QueryBuilder.Builder().insert(object).build().toString() + "; ";
-
+            query += new QueryBuilder.Builder().insertValues(object).build().toString() + ", ";
+        query = query.substring(0, query.length() - 2);
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             boolean hasBeenSuccessfullyInserted = ConnectionUtilities.TableConnectionWithInsertQuery(connection, query);
         } catch (SQLException e) {
-            throw new IllegalStateException("Cannot connect the database!", e);
+            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
         }
     }
 
-    public <T> List<?> updateEntireEntity(T object) throws SQLException, IllegalAccessException {
+    public <T> List<?> updateEntireEntity(T object) throws SQLException {
         logger.info("<"+getClass().getName()+"> " + ": " + "<"+"updateEntireEntity"+" >"+" - "+"Update entire entity with object: "
                 + object.toString());
         Class<?> clz = object.getClass();
@@ -58,8 +62,8 @@ public class MysqlDatabase {
                     break;
                 }
             }
-        } catch (Exception e) {
-            System.out.println("fa");
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
         }
 
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
@@ -73,8 +77,10 @@ public class MysqlDatabase {
             System.out.println(query);
             int indexChanged = ConnectionUtilities.TableConnectionWithUpdateQuery(connection, query);
             return findOne(clz, "id", index);
-        } catch (Exception e) {
-            System.out.println("catchhh");
+        } catch (SQLException e) {
+            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
         }
         return null;
     }
@@ -91,7 +97,7 @@ public class MysqlDatabase {
             int indexChanged = ConnectionUtilities.TableConnectionWithUpdateQuery(connection, query);
             return findOne(clz, "id", indexChanged);
         } catch (SQLException e) {
-            throw new IllegalStateException("Cannot connect the database!", e);
+            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
         }
     }
 
@@ -107,12 +113,10 @@ public class MysqlDatabase {
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
-            return null;
-//            throw new IllegalStateException("Cannot connect the database!", e);
+            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                  IllegalAccessException e) {
-            return null;
-//            throw new RuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -130,7 +134,7 @@ public class MysqlDatabase {
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
-            throw new IllegalStateException("Cannot connect the database!", e);
+            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                  IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -150,7 +154,7 @@ public class MysqlDatabase {
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
-            throw new IllegalStateException("Cannot connect the database!", e);
+            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                  IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -168,9 +172,8 @@ public class MysqlDatabase {
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
 
-        } catch (Exception e) {
-            System.err.println("Got an exception! ");
-            System.err.println(e.getMessage());
+        } catch (SQLException e) {
+            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
         }
         return null;
     }
@@ -184,9 +187,8 @@ public class MysqlDatabase {
 
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
-        } catch (Exception e) {
-            System.err.println("Got an exception! ");
-            System.err.println(e.getMessage());
+        } catch (SQLException e) {
+            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
         }
         return null;
     }
@@ -200,7 +202,7 @@ public class MysqlDatabase {
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
         } catch (SQLException e) {
-            throw new RuntimeException("Couldn't truncate this table");
+            throw new RuntimeException(ExceptionMessage.TRUNCATE.getMessage());
         }
     }
 
@@ -211,7 +213,7 @@ public class MysqlDatabase {
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithCreateTableQuery(connection, query) > 0;
         } catch (SQLException e) {
-            throw new RuntimeException("Couldn't create the table");
+            throw new RuntimeException(ExceptionMessage.CREATE_TABLE.getMessage());
         }
     }
 

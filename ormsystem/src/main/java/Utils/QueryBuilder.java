@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class QueryBuilder {
     private String query;
@@ -36,12 +37,7 @@ public class QueryBuilder {
 
         public <T> Builder where(String key, T value) {
             if (!this.query.contains("WHERE")) this.query += "WHERE ";
-            this.query += key + "=";
-            if (value instanceof Integer) this.query += value + " ";
-            else if (value instanceof String) this.query += "'" + value + "' ";
-            else if (value instanceof Boolean) this.query += (Boolean) value ? 1 : 0 + " ";
-            else throw new IllegalArgumentException("Type of object must be an integer or a string");
-
+            this.query += key + "=" + decideInstance(value);
             return this;
         }
 
@@ -70,32 +66,21 @@ public class QueryBuilder {
             return this;
         }
 
-        public <T> Builder insert(T object) {
-            this.query += "INSERT INTO " + object.getClass().getSimpleName().toLowerCase() + " ";
-
+        public <T> Builder insertValues(T object) {
             this.query += "(";
-
             Field[] declaredFields = object.getClass().getDeclaredFields();
-
-            Arrays.stream(declaredFields).forEach(field -> {
-                this.query += field.getName() + ", ";
-            });
-            this.query = this.query.substring(0, this.query.length() - 2);
-
-            this.query += ") VALUES (";
-
             Arrays.stream(declaredFields).forEach(field -> {
                 field.setAccessible(true);
-                try {
-                    Object value = field.get(object);
-
-                    if (value == null) this.query += "NULL, ";
-                    else if (value instanceof Integer) this.query += value + ", ";
-                    else if (value instanceof String) this.query += "'" + value + "', ";
-                    else if (value instanceof Boolean) this.query += (Boolean) value ? 1 : 0 + " ";
-                    else throw new IllegalArgumentException("Type of value object must be an integer or a string");
+                try{
+                    if(field.isAnnotationPresent(NotNull.class) && field.get(object) == null){
+                        throw new IllegalArgumentException(ExceptionMessage.EMPTY_NOTNULL_FIELD.getMessage());
+                    }
+                    if (!field.isAnnotationPresent(AutoIncrement.class)) {
+                        Object value = field.get(object);
+                        this.query += decideInstance(value);
+                    }
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException(ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
                 }
             });
 
@@ -105,32 +90,54 @@ public class QueryBuilder {
             return this;
         }
 
-        private <T> Builder checkIfContainsAnnotations(Field field) {
-            if (field.isAnnotationPresent(PrimaryKey.class)) this.query += "PRIMARY KEY ";
-            if (field.isAnnotationPresent(Unique.class)) this.query += "UNIQUE ";
-            if (field.isAnnotationPresent(NotNull.class)) this.query += "NOT NULL ";
-            if (field.isAnnotationPresent(AutoIncrement.class)) this.query += "AUTO_INCREMENT ";
+        public <T> Builder insert(T object) {
+            this.query += "INSERT INTO " + object.getClass().getSimpleName().toLowerCase() + " ( ";
 
-            this.query = this.query.trim();
-            this.query += ", ";
+            Field[] declaredFields = object.getClass().getDeclaredFields();
+            Arrays.stream(declaredFields).forEach(field -> {
+                if (!field.isAnnotationPresent(AutoIncrement.class)) {
+                    this.query += field.getName() + ", ";
+                }
+            });
+
+            this.query = this.query.substring(0, this.query.length() - 2);
+            this.query += ") VALUES ";
 
             return this;
         }
 
         public <T> Builder createTable(Class<T> clz) {
             this.query += "CREATE TABLE IF NOT EXISTS " + clz.getSimpleName().toLowerCase() + "(";
-            Field[] declaredFields = clz.getDeclaredFields();
 
+            AtomicInteger primaryKeyCounter = new AtomicInteger();
+            AtomicInteger autoInrementCounter = new AtomicInteger();
+
+            Field[] declaredFields = clz.getDeclaredFields();
             Arrays.stream(declaredFields).forEach(field -> {
                 this.query += "" + field.getName() + " ";
                 Type type = field.getAnnotatedType().getType();
 
-                if (String.class.equals(type)) this.query += "varchar(50) ";
+                if (String.class.equals(type)) this.query += "varchar(255) ";
                 else if (int.class.equals(type)) this.query += "int ";
                 else if (boolean.class.equals(type)) this.query += "BOOLEAN ";
                 else System.out.println("Unsupported class");
 
-                checkIfContainsAnnotations(field);
+
+                if (field.isAnnotationPresent(PrimaryKey.class)) {
+                    if (primaryKeyCounter.incrementAndGet() > 1)
+                        throw new IllegalArgumentException(ExceptionMessage.MULTIPLE_PRIMARY_KEY.getMessage());
+                    this.query += "PRIMARY KEY ";
+                }
+                if (field.isAnnotationPresent(Unique.class)) this.query += "UNIQUE ";
+                if (field.isAnnotationPresent(NotNull.class)) this.query += "NOT NULL ";
+                if (field.isAnnotationPresent(AutoIncrement.class)) {
+                    if (autoInrementCounter.incrementAndGet() > 1)
+                        throw new IllegalArgumentException(ExceptionMessage.MULTIPLE_AUTO_INCREMENT.getMessage());
+                    this.query += "AUTO_INCREMENT ";
+                }
+
+                this.query = this.query.trim();
+                this.query += ", ";
             });
 
             this.query = this.query.substring(0, this.query.length() - 2);
@@ -147,18 +154,15 @@ public class QueryBuilder {
             this.query = this.query.substring(0, this.query.length() - 2);
             this.query += ") VALUES (";
 
-            for (V value : map.values()) {
-                if (value instanceof Integer) this.query += value + ", ";
-                else if (value instanceof String) this.query += "'" + value + "', ";
-                else if (value instanceof Boolean) this.query += (Boolean) value ? 1 : 0 + " ";
-                else throw new IllegalArgumentException("Type of value object must be an integer or a string");
-            }
+            for (V value : map.values()) this.query += decideInstance(value);
+
 
             this.query = this.query.substring(0, this.query.length() - 2);
             this.query += ") ";
 
             return this;
         }
+
 
         public <T> Builder update(Class<T> clz) {
             this.query += "UPDATE " + clz.getSimpleName().toLowerCase() + " ";
@@ -171,18 +175,25 @@ public class QueryBuilder {
         }
 
         public <T> Builder setValue(String key, T value) {
-            this.query += key + "=";
-
-            if (value instanceof Integer) this.query += value + " ";
-            else if (value instanceof String) this.query += "'" + value + "' ";
-            else if (value instanceof Boolean) this.query += (Boolean) value ? 1 : 0 + " ";
-            else throw new IllegalArgumentException("Type of value object must be an integer or a string");
-
+            this.query += key + "=" + decideInstance(value);
             return this;
         }
 
         public QueryBuilder build() {
             return new QueryBuilder(this);
+        }
+
+        // --------- Additional Builder Private Functions ---------- //
+        private <V> String decideInstance(V value) {
+            if (value == null)
+                return "NULL ";
+            if (value instanceof Integer || value instanceof Double || value instanceof Float || value instanceof Short || value instanceof Long || value instanceof Byte)
+                return value + ", ";
+            if (value instanceof String || value instanceof Character)
+                return "'" + value + "', ";
+            if (value instanceof Boolean)
+                return (Boolean) value ? "1, " : "0, ";
+            return value.toString() + ", ";
         }
     }
 
