@@ -3,7 +3,6 @@ package Sql;
 import Utils.ConnectionUtilities;
 import Utils.ExceptionMessage;
 import Utils.QueryBuilder;
-import Utils.SqlConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,8 +23,8 @@ public class MysqlDatabase {
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             boolean hasBeenSuccessfullyInserted = ConnectionUtilities.TableConnectionWithInsertQuery(connection, query);
         } catch (SQLException e) {
-            logger.fatal("createOne" + ExceptionMessage.SQL_CONNECTION.getMessage());
-            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
+            logger.fatal("createOne" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
+            throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
         }
     }
 
@@ -44,8 +43,8 @@ public class MysqlDatabase {
                 logger.error("createMany " + "Failed to insert");
             }
         } catch (SQLException e) {
-            logger.fatal("createMany" + ExceptionMessage.SQL_CONNECTION.getMessage());
-            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
+            logger.fatal("createMany" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
+            throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
         }
     }
 
@@ -83,15 +82,15 @@ public class MysqlDatabase {
             int indexChanged = ConnectionUtilities.TableConnectionWithUpdateQuery(connection, query);
             return findOne(clz, "id", index);
         } catch (SQLException e) {
-            logger.fatal("updateEntireEntity " + ExceptionMessage.SQL_CONNECTION.getMessage());
-            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
+            logger.fatal("updateEntireEntity " + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
+            throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
         } catch (IllegalAccessException e) {
             logger.fatal("updateEntireEntity " + ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
             throw new RuntimeException(ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
         }
     }
 
-    public <T, V, K> List<T> update(Class<T> clz, String whereKey, K whereValue, String field, V value) {
+    public <T, V, K> int updateProperty(Class<T> clz, String whereKey, K whereValue, String field, V value) {
         logger.info("update" + " - " + "Update the " + field + " for " + "'" + value + "'" + " to item with " + whereKey + " of value " + whereValue);
         String query = new QueryBuilder.Builder()
                 .update(clz)
@@ -99,12 +98,11 @@ public class MysqlDatabase {
                 .setValue(field, value)
                 .where(whereKey, whereValue)
                 .build().toString();
-        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
-            int indexChanged = ConnectionUtilities.TableConnectionWithUpdateQuery(connection, query);
-            return findOne(clz, "id", indexChanged);
+        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
+            return ConnectionUtilities.TableConnectionWithIntegerResponse(connection, query);
         } catch (SQLException e) {
-            logger.fatal("update" + ExceptionMessage.SQL_CONNECTION.getMessage());
-            throw new IllegalStateException("update" + ExceptionMessage.SQL_CONNECTION.getMessage(), e);
+            logger.fatal("update" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
+            throw new IllegalStateException("update" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
         }
     }
 
@@ -121,8 +119,8 @@ public class MysqlDatabase {
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
-            logger.fatal("findAll" + ExceptionMessage.SQL_CONNECTION.getMessage());
-            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
+            logger.fatal("findAll" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
+            throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                  IllegalAccessException e) {
             logger.fatal("findAll" + ExceptionMessage.RUNTIME.getMessage());
@@ -144,8 +142,8 @@ public class MysqlDatabase {
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
-            logger.fatal("findOne" + ExceptionMessage.SQL_CONNECTION.getMessage());
-            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
+            logger.fatal("findOne" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
+            throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                  IllegalAccessException e) {
             logger.fatal("findOne" + ExceptionMessage.RUNTIME.getMessage());
@@ -166,8 +164,8 @@ public class MysqlDatabase {
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
-            logger.fatal("findAny" + ExceptionMessage.SQL_CONNECTION.getMessage());
-            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
+            logger.fatal("findAny" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
+            throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                  IllegalAccessException e) {
             logger.fatal("findAny" + ExceptionMessage.RUNTIME.getMessage());
@@ -187,8 +185,8 @@ public class MysqlDatabase {
             return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
 
         } catch (SQLException e) {
-            logger.fatal("deleteOne" + ExceptionMessage.SQL_CONNECTION.getMessage());
-            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
+            logger.fatal("deleteOne" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
+            throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
         }
     }
 
@@ -202,8 +200,8 @@ public class MysqlDatabase {
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
         } catch (SQLException e) {
-            logger.fatal("deleteAny" + ExceptionMessage.SQL_CONNECTION.getMessage());
-            throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
+            logger.fatal("deleteAny" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
+            throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
         }
     }
 
