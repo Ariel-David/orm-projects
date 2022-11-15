@@ -22,10 +22,9 @@ public class Animal {
 
     }
 
-    public static Animal createRandomAnimalInfo(){
+    public static Animal createRandomAnimalInfo() {
         Animal animal = new Animal();
-        animal.setNumOfLegs(RandomData.generateRandomNumber(0,5));
-        animal.setId(RandomData.getRandomId());
+        animal.setNumOfLegs(RandomData.generateRandomNumber(0, 5));
         animal.setSound(RandomData.getRandomSound());
         animal.setName(RandomData.getRandomFirstName());
         return animal;
@@ -37,37 +36,39 @@ public class Animal {
 
     public String getName() {
         return name;
-    }
 
-    public void setName(String name) {
-        if(name.length() < 2) throw new IllegalArgumentException("name: " + ExceptionMessage.TOO_SHORT_STRING.getMessage());
-        this.name = name;
     }
 
     public int getNumOfLegs() {
         return numOfLegs;
     }
 
-    public void setNumOfLegs(int numOfLegs) {
-        if (numOfLegs < 0) throw new IllegalArgumentException("numOfLegs: " + ExceptionMessage.NEGATIVE_FIELD.getMessage());
-        this.numOfLegs = numOfLegs;
-    }
-
-    public void setId(int id) {
-        if (id < 1) throw new IllegalArgumentException("id: " + ExceptionMessage.NEGATIVE_FIELD.getMessage());
-        this.id = id;
-    }
-
-
     public String getSound() {
         return sound;
     }
 
-    public void setSound(String sound) {
-        if(sound.length() < 2) throw new IllegalArgumentException("sound: " + ExceptionMessage.TOO_SHORT_STRING.getMessage());
-        this.sound = sound;
+    public void setName(String name) {
+        if (name.length() < 2)
+            throw new IllegalArgumentException("name: " + ExceptionMessage.TOO_SHORT_STRING.getMessage());
+        this.name = name;
     }
 
+    public void setNumOfLegs(int numOfLegs) {
+        if (numOfLegs < 0)
+            throw new IllegalArgumentException("numOfLegs: " + ExceptionMessage.NEGATIVE_FIELD.getMessage());
+        this.numOfLegs = numOfLegs;
+    }
+
+    public void setId(int id) {
+        if (id < 0) throw new IllegalArgumentException("id: " + ExceptionMessage.NEGATIVE_FIELD.getMessage());
+        this.id = id;
+    }
+
+    public void setSound(String sound) {
+        if (sound.length() < 2)
+            throw new IllegalArgumentException("sound: " + ExceptionMessage.TOO_SHORT_STRING.getMessage());
+        this.sound = sound;
+    }
 
 
     @Override
