@@ -1,8 +1,13 @@
 package Utils;
 
+import Sql.MysqlDatabase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.*;
 
 public class ConnectionUtilities {
+    private static Logger logger = LogManager.getLogger(MysqlDatabase.class.getName());
 
     public static <T> ResultSet TableConnectionWithSelectQuery(Connection connection, String query) throws SQLException {
         Statement statement = connection.createStatement();
@@ -48,6 +53,7 @@ public class ConnectionUtilities {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
+            logger.fatal("Connection"+ExceptionMessage.RUNTIME.getMessage());
             throw new RuntimeException(e);
         }
         return DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword());

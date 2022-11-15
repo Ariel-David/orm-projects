@@ -4,6 +4,9 @@ import Annotation.AutoIncrement;
 import Annotation.NotNull;
 import Annotation.PrimaryKey;
 import Annotation.Unique;
+import Sql.MysqlDatabase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -12,13 +15,18 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class QueryBuilder {
+
+    private static Logger logger = LogManager.getLogger(MysqlDatabase.class.getName());
+
     private String query;
 
     public String toString() {
+        logger.info("The request query is: "+ query.toString());
         return query;
     }
 
     public static class Builder {
+
         private String query;
 
         public Builder() {
@@ -71,8 +79,8 @@ public class QueryBuilder {
             Field[] declaredFields = object.getClass().getDeclaredFields();
             Arrays.stream(declaredFields).forEach(field -> {
                 field.setAccessible(true);
-                try{
-                    if(field.isAnnotationPresent(NotNull.class) && field.get(object) == null){
+                try {
+                    if (field.isAnnotationPresent(NotNull.class) && field.get(object) == null) {
                         throw new IllegalArgumentException(ExceptionMessage.EMPTY_NOTNULL_FIELD.getMessage());
                     }
                     if (!field.isAnnotationPresent(AutoIncrement.class)) {
@@ -80,6 +88,7 @@ public class QueryBuilder {
                         this.query += decideInstance(value);
                     }
                 } catch (IllegalAccessException e) {
+                    logger.fatal("insertValues" + ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
                     throw new RuntimeException(ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
                 }
             });
@@ -102,7 +111,6 @@ public class QueryBuilder {
 
             this.query = this.query.substring(0, this.query.length() - 2);
             this.query += ") VALUES ";
-
             return this;
         }
 
@@ -131,8 +139,10 @@ public class QueryBuilder {
                 if (field.isAnnotationPresent(Unique.class)) this.query += "UNIQUE ";
                 if (field.isAnnotationPresent(NotNull.class)) this.query += "NOT NULL ";
                 if (field.isAnnotationPresent(AutoIncrement.class)) {
-                    if (autoInrementCounter.incrementAndGet() > 1)
+                    if (autoInrementCounter.incrementAndGet() > 1) {
+                        logger.fatal("createTable" + ExceptionMessage.MULTIPLE_AUTO_INCREMENT.getMessage());
                         throw new IllegalArgumentException(ExceptionMessage.MULTIPLE_AUTO_INCREMENT.getMessage());
+                    }
                     this.query += "AUTO_INCREMENT ";
                 }
 
@@ -142,7 +152,6 @@ public class QueryBuilder {
 
             this.query = this.query.substring(0, this.query.length() - 2);
             this.query += ")";
-
             return this;
         }
 
@@ -159,7 +168,6 @@ public class QueryBuilder {
 
             this.query = this.query.substring(0, this.query.length() - 2);
             this.query += ") ";
-
             return this;
         }
 
@@ -193,6 +201,7 @@ public class QueryBuilder {
                 return "'" + value + "', ";
             if (value instanceof Boolean)
                 return (Boolean) value ? "1, " : "0, ";
+            logger.error(value.getClass().getName()+"Is not  a primitive object: "+value.toString() );
             return value.toString() + ", ";
         }
     }
