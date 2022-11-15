@@ -15,6 +15,7 @@ public enum ExceptionMessage {
     CREATE_TABLE("Couldn't create the table properly.");
 
 
+
     private final String message;
 
     private ExceptionMessage(final String message) {
