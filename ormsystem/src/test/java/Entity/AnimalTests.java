@@ -2,8 +2,6 @@ package Entity;
 
 import org.junit.jupiter.api.Test;
 
-import java.sql.SQLException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -64,4 +62,10 @@ public class AnimalTests {
         assertEquals(id, animal.getId());
     }
 
+
+    @Test
+    void animal_setSoundNullValue_ExceptionNullPointerException() {
+        Animal animal = Animal.createRandomAnimalInfo();
+        assertThrows(NullPointerException.class, () -> animal.setSound(null));
+    }
 }
