@@ -77,36 +77,32 @@ public class MysqlDatabase {
     }
 
     public <T, V, K> List<T> updateProperty(Class<T> clz, String whereKey, K whereValue, String filed, V value) {
-        validateInputs(clz, whereKey, whereValue, filed , value);
-        return null;
-//        String query = new QueryBuilder.Builder()
-//                .update(clz)
-//                .set()
-//                .setValue(filed, value)
-//                .where(whereKey, whereValue)
-//                .build().toString();
-//        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
-//            try {
-////                ResultSet rs = ConnectionUtilities.TableConnectionWithResultSetResponse(connection, query);
-////                System.out.println(rs);
-////                return readFromDB(rs, clz);
-//                if (ConnectionUtilities.TableConnectionWithIntegerResponse(connection, query) > 0) {
-//                    return findAny(clz, whereKey, whereValue);
-//                }
-//                return null;
-//            } catch (SQLException err) {
-//                if (err.getMessage().equals("Table '" + SqlConfig.getSchema() + "." + clz.getSimpleName().toLowerCase() + "' doesn't exist")) {
-//                    createTable(clz);
-//                    return new ArrayList<>();
-//                } else {
-//                    throw new SQLException(err.getMessage());
-//                }
-//            }
-//        } catch (SQLException e) {
-//            throw new IllegalStateException("Cannot connect the database!", e);
-//        } catch (RuntimeException e) {
-//            throw new IllegalStateException(e);
-//        }
+        if (validateInputs(clz, whereKey, whereValue, filed, value)) {
+            String query = new QueryBuilder.Builder()
+                    .update(clz)
+                    .set()
+                    .setValue(filed, value)
+                    .where(whereKey, whereValue)
+                    .build().toString();
+
+            try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
+                if (ConnectionUtilities.TableConnectionWithIntegerResponse(connection, query) > 0) {
+                    return findAny(clz, whereKey, whereValue);
+                }
+                return null;
+            } catch (SQLException err) {
+                if (err.getMessage().equals("Table '" + SqlConfig.getSchema() + "." + clz.getSimpleName().toLowerCase() + "' doesn't exist")) {
+                    createTable(clz);
+                    return new ArrayList<>();
+                } else {
+                    throw new IllegalStateException("Cannot connect the database!", err);
+                }
+            } catch (RuntimeException e) {
+                throw new IllegalStateException(e);
+            }
+        } else {
+            throw new IllegalStateException("one or more of your fields is not valid");
+        }
     }
 
     public <T> List<T> findAll(Class<T> clz) {
@@ -120,7 +116,7 @@ public class MysqlDatabase {
             return readFromDB(rs, clz);
 
         } catch (SQLException e) {
-            throw new IllegalStateException("Cannot connect the database!", e);
+//            throw new IllegalStateException("Cannot connect the database!", e);
             throw new IllegalStateException(ExceptionMessage.SQL_CONNECTION.getMessage(), e);
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                  IllegalAccessException e) {
@@ -237,25 +233,20 @@ public class MysqlDatabase {
         return results;
     }
 
-    private <T,V,K> Boolean validateInputs(Class<T> clz, String whereKey, K whereValue, String filed, V value) {
-        Field[] declaredFields = clz.getDeclaredFields();
-        Arrays.stream(declaredFields).forEach(field -> {
-            if(whereKey.equals(field.getName())){
-
-            }
-            System.out.println(field.getName());
-            Type type = field.getAnnotatedType().getType();
-            System.out.println(type);
-//                this.query += "" + field.getName() + " ";
-//                Type type = field.getAnnotatedType().getType();
-//
-//                if (String.class.equals(type)) this.query += "varchar(50) ";
-//                else if (int.class.equals(type)) this.query += "int ";
-//                else if (boolean.class.equals(type)) this.query += "BOOLEAN ";
-//                else System.out.println("Unsupported class");
-//
-//                checkIfContainsAnnotations(field);
-        });
+    private <T, V, K> boolean validateInputs(Class<T> clz, String whereKey, K whereValue, String filed, V value) {
+//        Field[] declaredFields = clz.getDeclaredFields();
+//        Arrays.stream(declaredFields).forEach(field -> {
+//            Type type = field.getAnnotatedType().getType();
+//            System.out.println(field.getName());
+//            System.out.println(type);
+//            if (whereKey.equals(field.getName())) {
+//                if (whereValue.getClass().getName().equals(type)) {
+//                    //
+//                } else {
+//                    //return false;
+//                }
+//            }
+//        });
         return true;
     }
 }
