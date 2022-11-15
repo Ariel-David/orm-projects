@@ -13,16 +13,15 @@ public class Client {
         MysqlDatabase table = new MysqlDatabase();
 
 //        System.out.println(table.findAll(Animal.class));
-//        System.out.println(table.findOne(Animal.class, "numOfLegs", 4));
+   //     System.out.println(table.findOne(Animal.class, "numOfLegs", 4));
 //        System.out.println(table.findAny(Animal.class, "id", 2));
-
-        Animal gato = new Animal();
-        gato.setId(1);
-        gato.setName("kitty");
-        table.createOne(gato);
-
-        String query = new QueryBuilder.Builder().insert(gato).build().toString();
-        System.out.println(query);
+      //          System.out.println(table.update(Animal.class,"id",1,"name","avi"));
+//        Animal gato = new Animal();
+//        gato.setId(1);
+//        gato.setName("kitty");
+//        table.createOne(gato);
+//        String query = new QueryBuilder.Builder().insert(gato).build().toString();
+//        System.out.println(query);
     }
 }
 

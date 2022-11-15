@@ -3,6 +3,8 @@ package Sql;
 import Utils.ConnectionUtilities;
 import Utils.QueryBuilder;
 import Utils.SqlConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -13,16 +15,21 @@ import java.util.List;
 
 public class MysqlDatabase {
 
+    private static Logger logger = LogManager.getLogger(MysqlDatabase.class.getName());
+
     public <T> void createOne(T object) {
+        logger.info("createOne"+" - "+"Create one");
         String query = new QueryBuilder.Builder().insert(object).build().toString();
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             boolean hasBeenSuccessfullyInserted = ConnectionUtilities.TableConnectionWithInsertQuery(connection, query);
         } catch (SQLException e) {
+            logger.fatal("createOne"+"Cannot connect the database");
             throw new IllegalStateException("Cannot connect the database!", e);
         }
     }
 
     public <T> void createMany(List<T> objects) {
+        logger.info("createMany"+" - "+"Create many");
         String query = "";
         for (T object : objects)
             query += new QueryBuilder.Builder().insert(object).build().toString() + "; ";
@@ -35,6 +42,8 @@ public class MysqlDatabase {
     }
 
     public <T> List<?> updateEntireEntity(T object) throws SQLException, IllegalAccessException {
+        logger.info("<"+getClass().getName()+"> " + ": " + "<"+"updateEntireEntity"+" >"+" - "+"Update entire entity with object: "
+                + object.toString());
         Class<?> clz = object.getClass();
         Field[] declaredFields = clz.getDeclaredFields();
         Object index = null;
@@ -70,11 +79,12 @@ public class MysqlDatabase {
         return null;
     }
 
-    public <T, V, K> List<T> update(Class<T> clz, String whereKey, K whereValue, String filed, V value) {
+    public <T, V, K> List<T> update(Class<T> clz, String whereKey, K whereValue, String field, V value) {
+        logger.info("update"+" - "+"Update the "+ field+" for "+"'"+value+"'"+" to item with " +whereKey+" of value " + whereValue);
         String query = new QueryBuilder.Builder()
                 .update(clz)
                 .set()
-                .setValue(filed, value)
+                .setValue(field, value)
                 .where(whereKey, whereValue)
                 .build().toString();
         try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
@@ -86,6 +96,7 @@ public class MysqlDatabase {
     }
 
     public <T> List<T> findAll(Class<T> clz) {
+        logger.info("findAll"+" - "+"Find all items");
         String query = new QueryBuilder.Builder()
                 .select("*")
                 .from(clz)
@@ -106,6 +117,7 @@ public class MysqlDatabase {
     }
 
     public <T, V> List<T> findOne(Class<T> clz, String field, V value) {
+        logger.info("findOne"+" - "+"Get one item with field: " +" '"+ field +"' "+ " and value: " + "'"+value.toString()+"'");
         String query = new QueryBuilder.Builder()
                 .select("*")
                 .from(clz)
@@ -126,6 +138,7 @@ public class MysqlDatabase {
     }
 
     public <T, V> List<T> findAny(Class<T> clz, String field, V value) {
+        logger.info("findAny"+" - "+"Get all items with field: " +" '"+ field +"' "+ " and value: " + "'"+value.toString()+"'");
         String query = new QueryBuilder.Builder()
                 .select("*")
                 .from(clz)
@@ -145,6 +158,7 @@ public class MysqlDatabase {
     }
 
     public <T, V> Boolean deleteOne(Class<T> clz, String field, V value) {
+        logger.info("deleteOne"+" - "+"Delete one item with field: " +" '"+ field +"' "+ " and value: " + "'"+value.toString()+"'");
         String query = new QueryBuilder.Builder()
                 .delete(clz)
                 .where(field, value)
@@ -162,6 +176,7 @@ public class MysqlDatabase {
     }
 
     public <T, V> Boolean deleteAny(Class<T> clz, String field, V value) {
+        logger.info("deleteAny"+" - "+"delete any item with field: " +" '"+ field +"' "+ " and value: " + "'"+value.toString()+"'");
         String query = new QueryBuilder.Builder()
                 .delete(clz)
                 .where(field, value)
@@ -177,6 +192,7 @@ public class MysqlDatabase {
     }
 
     public <T, V> Boolean deleteEntireTable(Class<T> clz) {
+        logger.info("deleteEntireTable"+" - "+"delete the entire table");
         String query = new QueryBuilder.Builder()
                 .truncate(clz)
                 .build().toString();
@@ -189,6 +205,7 @@ public class MysqlDatabase {
     }
 
     public <T> boolean createTable(Class<T> clz) {
+        logger.info("createTable"+" - "+"Create table");
         String query = new QueryBuilder.Builder().createTable(clz).build().toString();
         System.out.println(query);
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
@@ -201,7 +218,7 @@ public class MysqlDatabase {
     private <T> List<T> readFromDB(ResultSet rs, Class<T> clz) throws
             SQLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         List<T> results = new ArrayList<>();
-
+        logger.info("readFromDB"+" - "+"Read from the database");
         while (rs.next()) {
             Constructor<T> constructor = clz.getConstructor(null);
             T item = constructor.newInstance();
