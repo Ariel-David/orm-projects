@@ -38,6 +38,11 @@ public class QueryBuilder {
             return this;
         }
 
+        public <T> Builder drop(Class<T> clz) {
+            this.query += "DROP TABLE " + clz.getSimpleName().toLowerCase() + ";";
+            return this;
+        }
+
         public <T> Builder from(Class<T> from) {
             this.query += "FROM " + from.getSimpleName().toLowerCase() + " ";
             return this;
@@ -114,7 +119,6 @@ public class QueryBuilder {
 
             return this;
         }
-
 
 
         public <T> Builder createTable(Class<T> clz) {

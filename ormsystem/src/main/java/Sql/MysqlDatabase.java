@@ -98,6 +98,7 @@ public class MysqlDatabase {
                 .setValue(field, value)
                 .where(whereKey, whereValue)
                 .build().toString();
+        System.out.println(query);
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithIntegerResponse(connection, query);
         } catch (SQLException e) {
@@ -170,6 +171,16 @@ public class MysqlDatabase {
                  IllegalAccessException e) {
             logger.fatal("findAny" + ExceptionMessage.RUNTIME.getMessage());
             throw new RuntimeException(e);
+        }
+    }
+
+    public <T> Boolean dropTable(Class<T> clz){
+        String query = new QueryBuilder.Builder().drop(clz).build().toString();
+        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
+            return ConnectionUtilities.TableConnectionWithDeleteQuery(connection, query) > 0;
+        } catch (SQLException e) {
+            logger.fatal("drop table" + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
+            throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
         }
     }
 
