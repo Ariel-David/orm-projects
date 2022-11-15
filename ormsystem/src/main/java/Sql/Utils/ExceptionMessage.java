@@ -1,4 +1,4 @@
-package Utils;
+package Sql.Utils;
 
 public enum ExceptionMessage {
 

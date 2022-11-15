@@ -1,4 +1,4 @@
-package Utils;
+package Sql.Utils;
 
 import Annotation.AutoIncrement;
 import Annotation.NotNull;
@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class QueryBuilder {
-    private String query;
+    private final String query;
 
     public String toString() {
         return query;
@@ -30,7 +30,7 @@ public class QueryBuilder {
             return this;
         }
 
-        public Builder from(Class from) {
+        public <T> Builder from(Class<T> from) {
             this.query += "FROM " + from.getSimpleName().toLowerCase() + " ";
             return this;
         }
@@ -110,7 +110,7 @@ public class QueryBuilder {
             this.query += "CREATE TABLE IF NOT EXISTS " + clz.getSimpleName().toLowerCase() + "(";
 
             AtomicInteger primaryKeyCounter = new AtomicInteger();
-            AtomicInteger autoInrementCounter = new AtomicInteger();
+            AtomicInteger autoIncrementCounter = new AtomicInteger();
 
             Field[] declaredFields = clz.getDeclaredFields();
             Arrays.stream(declaredFields).forEach(field -> {
@@ -131,7 +131,7 @@ public class QueryBuilder {
                 if (field.isAnnotationPresent(Unique.class)) this.query += "UNIQUE ";
                 if (field.isAnnotationPresent(NotNull.class)) this.query += "NOT NULL ";
                 if (field.isAnnotationPresent(AutoIncrement.class)) {
-                    if (autoInrementCounter.incrementAndGet() > 1)
+                    if (autoIncrementCounter.incrementAndGet() > 1)
                         throw new IllegalArgumentException(ExceptionMessage.MULTIPLE_AUTO_INCREMENT.getMessage());
                     this.query += "AUTO_INCREMENT ";
                 }
