@@ -165,7 +165,7 @@ public class QueryBuilder {
             return this;
         }
 
-        public <T> Builder set(String key, T value) {
+        public Builder set() {
             if (!this.query.contains("SET")) this.query += "SET ";
             return this;
         }
