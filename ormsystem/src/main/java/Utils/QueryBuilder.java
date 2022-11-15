@@ -38,7 +38,7 @@ public class QueryBuilder {
             return this;
         }
 
-        public Builder from(Class from) {
+        public <T> Builder from(Class<T> from) {
             this.query += "FROM " + from.getSimpleName().toLowerCase() + " ";
             return this;
         }
@@ -111,6 +111,7 @@ public class QueryBuilder {
 
             this.query = this.query.substring(0, this.query.length() - 2);
             this.query += ") VALUES ";
+
             return this;
         }
 
@@ -118,7 +119,7 @@ public class QueryBuilder {
             this.query += "CREATE TABLE IF NOT EXISTS " + clz.getSimpleName().toLowerCase() + "(";
 
             AtomicInteger primaryKeyCounter = new AtomicInteger();
-            AtomicInteger autoInrementCounter = new AtomicInteger();
+            AtomicInteger autoIncrementCounter = new AtomicInteger();
 
             Field[] declaredFields = clz.getDeclaredFields();
             Arrays.stream(declaredFields).forEach(field -> {
@@ -139,7 +140,7 @@ public class QueryBuilder {
                 if (field.isAnnotationPresent(Unique.class)) this.query += "UNIQUE ";
                 if (field.isAnnotationPresent(NotNull.class)) this.query += "NOT NULL ";
                 if (field.isAnnotationPresent(AutoIncrement.class)) {
-                    if (autoInrementCounter.incrementAndGet() > 1) {
+                    if (autoIncrementCounter.incrementAndGet() > 1) {
                         logger.fatal("createTable" + ExceptionMessage.MULTIPLE_AUTO_INCREMENT.getMessage());
                         throw new IllegalArgumentException(ExceptionMessage.MULTIPLE_AUTO_INCREMENT.getMessage());
                     }
@@ -152,6 +153,7 @@ public class QueryBuilder {
 
             this.query = this.query.substring(0, this.query.length() - 2);
             this.query += ")";
+
             return this;
         }
 
@@ -168,6 +170,7 @@ public class QueryBuilder {
 
             this.query = this.query.substring(0, this.query.length() - 2);
             this.query += ") ";
+
             return this;
         }
 

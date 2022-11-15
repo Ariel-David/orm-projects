@@ -59,7 +59,7 @@ public class MysqlDatabase {
         try {
             for (Field field : declaredFields) {
                 field.setAccessible(true);
-                if (field.getName() == "id") {
+                if (field.getName().equals("id")) {
                     index = field.get(object);
                     List<?> list = findOne(clz, "id", index); //TODO:handle empty list exception
                     item = (T) list.get(0);

@@ -10,15 +10,18 @@ public enum ExceptionMessage {
     FIELDS_OF_OBJECT("Something went wrong when tried to get object's fields..."),
 
     RUNTIME("Runtime exception"),
+    NEGATIVE_FIELD("This field can not be negative"),
+    TOO_SHORT_STRING("This field can not be as short as inserted"),
     CREATE_TABLE("Couldn't create the table properly.");
 
 
     private final String message;
 
-    private ExceptionMessage(final String message){
+    private ExceptionMessage(final String message) {
         this.message = message;
     }
-    public String getMessage(){
+
+    public String getMessage() {
         return message;
     }
 }
