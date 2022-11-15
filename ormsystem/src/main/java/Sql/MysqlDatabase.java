@@ -54,16 +54,24 @@ public class MysqlDatabase {
         return null;
     }
 
-    public <T, V, K> List<T> update(Class<T> clz, String whereKey, K whereValue, String filed, V value) {
-        String query = new QueryBuilder.Builder()
-                .update(clz)
-                .set()
-                .setValue(filed, value)
-                .where(whereKey, whereValue)
-                .build().toString();
-        try (Connection connection = DriverManager.getConnection(SqlConfig.getUrl(), SqlConfig.getUsername(), SqlConfig.getPassword())) {
-            int indexChanged = ConnectionUtilities.TableConnectionWithUpdateQuery(connection, query);
-            return findOne(clz, "id", indexChanged);
+    public <T, V, K> List<T> updateProperty(Class<T> clz, String whereKey, K whereValue, String filed, V value) {
+        String query = new QueryBuilder.Builder().update(clz).set().setValue(filed, value).build().toString();
+        query = query.substring(0, query.length() - 2) + " ";
+        query += new QueryBuilder.Builder().where(whereKey, whereValue).build().toString();
+        try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
+            try{
+                if (ConnectionUtilities.TableConnectionWithUpdateQuery(connection, query) > 0) {
+                    return findAny(clz, whereKey, whereValue);
+                }
+            }catch (SQLSyntaxErrorException err){
+                System.out.println(err.getMessage());
+                if (err.getMessage().contains("Table")){
+                        createTable(clz);
+                }
+            }
+//            throw new SQLException("false");
+//            System.out.println("false");
+            return null;
         } catch (SQLException e) {
             throw new IllegalStateException("Cannot connect the database!", e);
         }
