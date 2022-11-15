@@ -8,9 +8,13 @@ public enum ExceptionMessage {
     SQL_CONNECTION("Could'nt connect to the database."),
     EMPTY_NOTNULL_FIELD("Not null fields must be filled out before creation"),
     FIELDS_OF_OBJECT("Something went wrong when tried to get object's fields..."),
+
+    RUNTIME("Runtime exception"),
     NEGATIVE_FIELD("This field can not be negative"),
     TOO_SHORT_STRING("This field can not be as short as inserted"),
     CREATE_TABLE("Couldn't create the table properly.");
+
+
 
     private final String message;
 
