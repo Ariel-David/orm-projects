@@ -32,7 +32,7 @@ public class Client {
         System.out.println(table.findAll(Animal.class).size());
 
         // update 1 element's field from above
-        table.update(Animal.class, "id", 5, "numOfLegs",5);
+        table.updateProperty(Animal.class, "id", 5, "numOfLegs",5);
 
         // update entire element from above
         Animal updateToThisOne = Animal.createRandomAnimalInfo();

@@ -115,6 +115,8 @@ public class QueryBuilder {
             return this;
         }
 
+
+
         public <T> Builder createTable(Class<T> clz) {
             this.query += "CREATE TABLE IF NOT EXISTS " + clz.getSimpleName().toLowerCase() + "(";
 
