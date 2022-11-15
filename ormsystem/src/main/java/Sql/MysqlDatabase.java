@@ -14,7 +14,8 @@ import java.util.List;
 public class MysqlDatabase {
 
     public <T> void createOne(T object) {
-        String query = new QueryBuilder.Builder().insert(object).build().toString();
+        String query = new QueryBuilder.Builder().insert(object).insertValues(object).build().toString();
+        System.out.println(query);
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             boolean hasBeenSuccessfullyInserted = ConnectionUtilities.TableConnectionWithInsertQuery(connection, query);
         } catch (SQLException e) {
@@ -23,10 +24,11 @@ public class MysqlDatabase {
     }
 
     public <T> void createMany(List<T> objects) {
-        String query = "";
+        // check if the list is empty!
+        String query = new QueryBuilder.Builder().insert(objects.get(0)).build().toString();
         for (T object : objects)
-            query += new QueryBuilder.Builder().insert(object).build().toString() + "; ";
-
+            query += new QueryBuilder.Builder().insertValues(object).build().toString() + ", ";
+        query = query.substring(0, query.length() -2);
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             boolean hasBeenSuccessfullyInserted = ConnectionUtilities.TableConnectionWithInsertQuery(connection, query);
         } catch (SQLException e) {
