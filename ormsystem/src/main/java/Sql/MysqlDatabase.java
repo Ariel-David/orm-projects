@@ -1,5 +1,6 @@
 package Sql;
 
+import Annotation.PrimaryKey;
 import Utils.ConnectionUtilities;
 import Utils.ExceptionMessage;
 import Utils.QueryBuilder;
@@ -55,21 +56,16 @@ public class MysqlDatabase {
 
         Class<?> clz = object.getClass();
         Field[] declaredFields = clz.getDeclaredFields();
-        Object index = null;
-        T item;
+        List pkObj;
         try {
-            for (Field field : declaredFields) {
-                field.setAccessible(true);
-                if (field.getName().equals("id")) {
-                    index = field.get(object);
-                    List<?> list = findOne(clz, "id", index); //TODO:handle empty list exception
-                    item = (T) list.get(0);
-                    break;
-                }
-            }
+            pkObj = LocatePrimaryKey(declaredFields, object);
+
         } catch (IllegalAccessException e) {
             logger.fatal("updateEntireEntity" + ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
             throw new RuntimeException(ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
+        } catch (NullPointerException e) {
+            logger.fatal("updateEntireEntity" + ExceptionMessage.NO_PRIMARY_KEY_FOUND.getMessage());
+            throw new RuntimeException(ExceptionMessage.NO_PRIMARY_KEY_FOUND.getMessage());
         }
 
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
@@ -79,7 +75,7 @@ public class MysqlDatabase {
                 query += new QueryBuilder.Builder().setValue(field.getName(), field.get(object)).build().toString() + ", ";
             }
             query = query.substring(0, query.length() - 2) + " ";
-            query += new QueryBuilder.Builder().where("id", index).build().toString();
+            query += new QueryBuilder.Builder().where((String) pkObj.get(0), (T) pkObj.get(1)).build().toString();
             return ConnectionUtilities.TableConnectionWithIntegerResponse(connection, query);
         } catch (SQLException e) {
             logger.fatal("updateEntireEntity " + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
@@ -88,6 +84,27 @@ public class MysqlDatabase {
             logger.fatal("updateEntireEntity " + ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
             throw new RuntimeException(ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
         }
+
+    }
+
+    private <T> List LocatePrimaryKey(Field[] declaredFields, T object) throws IllegalAccessException {
+        Object primaryKey = null;
+        String fieldToReturn = null;
+        for (Field field : declaredFields) {
+            field.setAccessible(true);
+            if (field.isAnnotationPresent(PrimaryKey.class)) {
+                primaryKey = field.get(object);
+                fieldToReturn = field.getName();
+                break;
+            }
+        }
+        if (primaryKey == null || fieldToReturn == null) {
+            throw new NullPointerException();
+        }
+        List list = new ArrayList<>();
+        list.add(fieldToReturn);
+        list.add(primaryKey);
+        return list;
     }
 
     public <T, V, K> int updateProperty(Class<T> clz, String whereKey, K whereValue, String field, V value) {
@@ -244,8 +261,7 @@ public class MysqlDatabase {
             SQLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
 
         List<T> results = new ArrayList<>();
-
-        logger.info("readFromDB" + " - " + "Reading all entities from the database: " + clz.getSimpleName());
+        logger.info("readFromDB" + " - " + "Reading all entities from the database");
 
         while (rs.next()) {
             Constructor<T> constructor = clz.getConstructor(null);
@@ -257,6 +273,9 @@ public class MysqlDatabase {
                 field.set(item, rs.getObject(field.getName()));
             }
             results.add(item);
+        }
+        if (results.size() == 0) {
+            logger.warn("readFromDB" + " - " + "DataBase is Empty!: ");
         }
         return results;
     }

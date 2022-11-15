@@ -12,8 +12,8 @@ public enum ExceptionMessage {
     RUNTIME("Runtime exception"),
     NEGATIVE_FIELD("This field can not be negative"),
     TOO_SHORT_STRING("This field can not be as short as inserted"),
-    CREATE_TABLE("Couldn't create the table properly.");
-
+    CREATE_TABLE("Couldn't create the table properly."),
+    NO_PRIMARY_KEY_FOUND("No primary key found.");
 
 
     private final String message;
