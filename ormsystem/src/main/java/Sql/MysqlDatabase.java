@@ -21,7 +21,6 @@ public class MysqlDatabase {
     public <T> boolean createOne(T object) {
         logger.info("createOne" + " - " + "Create one");
         String query = new QueryBuilder.Builder().insert(object).insertValues(object).build().toString();
-        System.out.println(query);
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithBooleanResponse(connection, query);
         } catch (SQLIntegrityConstraintViolationException e) {
@@ -35,21 +34,13 @@ public class MysqlDatabase {
 
     public <T> boolean createMany(List<T> objects) {
         logger.info("createMany" + " - " + "Create many");
-        String query = "";
         // check if the list is empty!
-        query = new QueryBuilder.Builder().insert(objects.get(0)).build().toString();
+        String query = new QueryBuilder.Builder().insert(objects.get(0)).build().toString();
         for (T object : objects)
             query += new QueryBuilder.Builder().insertValues(object).build().toString() + ", ";
         query = query.substring(0, query.length() - 2);
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
-            boolean hasBeenSuccessfullyInserted = ConnectionUtilities.TableConnectionWithBooleanResponse(connection, query);
-            logger.info("createMany" + " - " + "has Been Success fully Inserted: " + hasBeenSuccessfullyInserted);
-            if (hasBeenSuccessfullyInserted == false) {
-                logger.error("createMany " + "Failed to insert");
-                return false;
-            }
-            return true;
-
+            return ConnectionUtilities.TableConnectionWithBooleanResponse(connection, query);
         } catch (SQLIntegrityConstraintViolationException e) {
             logger.fatal("createMany" + ExceptionMessage.DUPLICATED_UNIQUE_FIELD.getMessage());
             throw new IllegalStateException(ExceptionMessage.DUPLICATED_UNIQUE_FIELD.getMessage(), e);
@@ -60,39 +51,35 @@ public class MysqlDatabase {
     }
 
     public <T> int updateEntireEntity(T object) {
-        logger.info("<updateEntireEntity> - Update entire entity with object: " + object.toString());
-
-        Class<?> clz = object.getClass();
+        logger.info("updateEntireEntity - Update entire entity with object: " + object.toString());
+        Class<T> clz = (Class<T>) object.getClass();
         Field[] declaredFields = clz.getDeclaredFields();
-        List pkObj;
-        try {
-            pkObj = LocatePrimaryKey(declaredFields, object);
-
-        } catch (IllegalAccessException e) {
-            logger.fatal("updateEntireEntity" + ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
-            throw new RuntimeException(ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
-        } catch (NullPointerException e) {
-            logger.fatal("updateEntireEntity" + ExceptionMessage.NO_PRIMARY_KEY_FOUND.getMessage());
-            throw new RuntimeException(ExceptionMessage.NO_PRIMARY_KEY_FOUND.getMessage());
-        }
-
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
-            String query = new QueryBuilder.Builder().update(clz).set().build().toString();
-            for (Field field : declaredFields) {
-                field.setAccessible(true);
-                query += new QueryBuilder.Builder().setValue(field.getName(), field.get(object)).build().toString() + ", ";
-            }
-            query = query.substring(0, query.length() - 2) + " ";
-            query += new QueryBuilder.Builder().where((String) pkObj.get(0), (T) pkObj.get(1)).build().toString();
-            return ConnectionUtilities.TableConnectionWithIntegerResponse(connection, query);
-        } catch (SQLException e) {
-            logger.fatal("updateEntireEntity " + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
-            throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
+            List pkObj = LocatePrimaryKey(declaredFields, object);
+            String query = createUpdateQuery(clz, object, declaredFields, pkObj);
+            int response = ConnectionUtilities.TableConnectionWithIntegerResponse(connection, query);
+            if (response <= 0) logger.warn("Update - Did not find an object to update!" + object);
+            return response;
         } catch (IllegalAccessException e) {
             logger.fatal("updateEntireEntity " + ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
             throw new RuntimeException(ExceptionMessage.FIELDS_OF_OBJECT.getMessage());
+        } catch (NullPointerException e) {
+            logger.fatal("updateEntireEntity " + ExceptionMessage.NO_PRIMARY_KEY_FOUND.getMessage());
+            throw new RuntimeException(ExceptionMessage.NO_PRIMARY_KEY_FOUND.getMessage());
+        } catch (SQLException e) {
+            logger.fatal("updateEntireEntity " + ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage());
+            throw new IllegalStateException(ExceptionMessage.ILLEGAL_SQL_QUERY.getMessage(), e);
         }
+    }
 
+    private <T> String createUpdateQuery(Class<?> clz, T object, Field[] declaredFields, List pkObj) throws IllegalAccessException {
+        String query = new QueryBuilder.Builder().update(clz).set().build().toString();
+        for (Field field : declaredFields) {
+            field.setAccessible(true);
+            query += new QueryBuilder.Builder().setValue(field.getName(), field.get(object)).build().toString() + ", ";
+        }
+        query = query.substring(0, query.length() - 2) + " " + new QueryBuilder.Builder().where((String) pkObj.get(0), (T) pkObj.get(1)).build().toString();
+        return query;
     }
 
     private <T> List LocatePrimaryKey(Field[] declaredFields, T object) throws IllegalAccessException {
@@ -123,7 +110,6 @@ public class MysqlDatabase {
                 .setValue(field, value)
                 .where(whereKey, whereValue)
                 .build().toString();
-        System.out.println(query);
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             return ConnectionUtilities.TableConnectionWithIntegerResponse(connection, query);
         } catch (SQLException e) {
@@ -162,6 +148,7 @@ public class MysqlDatabase {
                 .limit(1)
                 .build().toString();
 
+        System.out.println(query);
         try (Connection connection = ConnectionUtilities.getConnectionInstance()) {
             ResultSet rs = ConnectionUtilities.TableConnectionWithResultSetResponse(connection, query);
             return readFromDB(rs, clz);
@@ -283,7 +270,7 @@ public class MysqlDatabase {
             results.add(item);
         }
         if (results.size() == 0) {
-            logger.warn("readFromDB" + " - " + "DataBase is Empty!: ");
+            logger.warn("readFromDB" + " - " + "Could not find what was requested! ");
         }
         return results;
     }
