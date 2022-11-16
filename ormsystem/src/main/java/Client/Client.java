@@ -23,34 +23,41 @@ public class Client {
         // create table of that same element's type
         table.createTable(Animal.class);
 
+        // get size of table now
+        int size = table.findAll(Animal.class).size();
+
         // add 3 elements to the table above
         table.createMany(createListOfEntity());
 
         // get all elements from the table above
-        System.out.println(table.findAll(Animal.class).size());
+        System.out.println("Size of table before creating new elements --> " + size);
+        System.out.println("Size of table after creating new elements --> " + table.findAll(Animal.class).size());
 
         // update 1 element's field from above
-        table.updateProperty(Animal.class, "id", 5, "numOfLegs", 5);
+        table.updateProperty(Animal.class, "id", 1, "numOfLegs", 5);
 
         // update entire element from above
         Animal updateToThisOne = Animal.createRandomAnimalInfo();
-        updateToThisOne.setId(7);
+        updateToThisOne.setId(2);
         table.updateEntireEntity(updateToThisOne);
 
         // get 1 element from the table above
-        System.out.println(table.findOne(Animal.class, "id", 7));
+        System.out.println("---------------------> Entity: " + table.findOne(Animal.class, "id", 2));
+
 
         // delete one element from above
-        table.deleteOne(Animal.class, "id", 7);
+        int removedLine = table.deleteOne(Animal.class, "id", 1);
+        System.out.println("---------------------> Number of removed lines should be 1 and got: " + removedLine);
 
         // delete many elements from above
-        table.deleteAny(Animal.class, "numOfLegs", 3);
+        int linesRemoved = table.deleteAny(Animal.class, "numOfLegs", 3);
+        System.out.println("---------------------> Number of removed lines: " + linesRemoved);
 
         // delete all elements from table
         table.deleteEntireTable(Animal.class);
 
         // get all elements from the table above
-        System.out.println(table.findAll(Animal.class));
+        System.out.println(table.findAll(Animal.class).size() == 0 ? "This table is empty!" : "This table is not empty!");
     }
 
     public static <T> List<T> createListOfEntity() {

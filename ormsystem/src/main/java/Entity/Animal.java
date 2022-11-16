@@ -24,7 +24,7 @@ public class Animal {
 
     public static Animal createRandomAnimalInfo() {
         Animal animal = new Animal();
-        animal.setNumOfLegs(RandomData.generateRandomNumber(0, 5));
+        animal.setNumOfLegs(RandomData.generateRandomNumber(2, 5));
         animal.setSound(RandomData.getRandomSound());
         animal.setName(RandomData.getRandomFirstName());
         return animal;
